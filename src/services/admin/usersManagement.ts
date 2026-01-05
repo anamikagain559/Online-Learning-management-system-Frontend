@@ -3,15 +3,15 @@
 
 import { serverFetch } from "@/lib/server-fetch";
 import { zodValidator } from "@/lib/zodValidator";
-import { updatePatientZodSchema } from "@/zod/patient.validation";
+import { updateUserZodSchema } from "@/zod/users.validation";
 
 /**
  * GET ALL PATIENTS
  * API: GET /patient?queryParams
  */
-export async function getPatients(queryString?: string) {
+export async function getUsers(queryString?: string) {
     try {
-        const response = await serverFetch.get(`/patient${queryString ? `?${queryString}` : ""}`);
+        const response = await serverFetch.get(`/user/all-users${queryString ? `?${queryString}` : ""}`);
         const result = await response.json();
         return result;
     } catch (error: any) {
@@ -29,7 +29,7 @@ export async function getPatients(queryString?: string) {
  */
 export async function getPatientById(id: string) {
     try {
-        const response = await serverFetch.get(`/patient/${id}`)
+        const response = await serverFetch.get(`/user/${id}`)
         const result = await response.json();
         return result;
     } catch (error: any) {
@@ -52,7 +52,7 @@ export async function updatePatient(id: string, _prevState: any, formData: FormD
         address: formData.get("address") as string,
     };
 
-    const validation = zodValidator(validationPayload, updatePatientZodSchema);
+    const validation = zodValidator(validationPayload, updateUserZodSchema);
     if (!validation.success && validation.errors) {
         return {
             success: false,
@@ -72,7 +72,7 @@ export async function updatePatient(id: string, _prevState: any, formData: FormD
     }
     try {
 
-        const response = await serverFetch.patch(`/patient/${id}`, {
+        const response = await serverFetch.patch(`/user/${id}`, {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(validation.data),
         });
@@ -113,7 +113,7 @@ export async function softDeletePatient(id: string) {
  */
 export async function deletePatient(id: string) {
     try {
-        const response = await serverFetch.delete(`/patient/${id}`)
+        const response = await serverFetch.delete(`/user/${id}`)
         const result = await response.json();
         return result;
     } catch (error: any) {

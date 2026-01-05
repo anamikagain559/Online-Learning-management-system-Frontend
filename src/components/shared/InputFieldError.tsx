@@ -3,17 +3,16 @@ import { FieldDescription } from "../ui/field";
 
 interface InputFieldErrorProps {
   field: string;
-  state?: IInputErrorState | null; // ✅ make nullable
+  state: IInputErrorState;
 }
 
 const InputFieldError = ({ field, state }: InputFieldErrorProps) => {
-  // Return null if state is null or undefined
-  if (!state) return null;
-
-  const errorMessage = getInputFieldError(field, state);
-
-  if (errorMessage) {
-    return <FieldDescription className="text-red-600">{errorMessage}</FieldDescription>;
+  if (getInputFieldError(field, state)) {
+    return (
+      <FieldDescription className="text-red-600">
+        {getInputFieldError(field, state)}
+      </FieldDescription>
+    );
   }
 
   return null;

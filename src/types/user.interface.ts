@@ -1,7 +1,6 @@
 import { UserRole } from "@/lib/auth-utils";
 import { IAdmin } from "./admin.interface";
-import { IDoctor } from "./doctor.interface";
-import { IPatient } from "./patient.interface";
+import { IUser } from "./patient.interface";
 
 export interface UserInfo {
     id: string;
@@ -11,8 +10,7 @@ export interface UserInfo {
     needPasswordChange: boolean;
     status: "ACTIVE" | "BLOCKED" | "DELETED";
     admin?: IAdmin;
-    patient?: IPatient;
-    doctor?: IDoctor;
+    user?: IUser;
     createdAt: string;
     updatedAt: string;
 }

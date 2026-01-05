@@ -1,9 +1,5 @@
-import React from 'react'
+const AdminDashboardPage = () => {
+  return <div>AdminDashboardPage</div>;
+};
 
-function page() {
-  return (
-    <div>page</div>
-  )
-}
-
-export default page
+export default AdminDashboardPage;

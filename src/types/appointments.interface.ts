@@ -1,4 +1,4 @@
-import { IDoctor } from "./doctor.interface";
+import { IDoctor } from "./travelPlan.interface";
 import { IPatient } from "./patient.interface";
 import { IPrescription } from "./prescription.interface";
 import { IReview } from "./review.interface";

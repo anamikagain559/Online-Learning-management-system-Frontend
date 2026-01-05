@@ -1,5 +1,5 @@
 import { IAppointment } from "./appointments.interface";
-import { IDoctor } from "./doctor.interface";
+import { IDoctor } from "./travelPlan.interface";
 import { IPatient } from "./patient.interface";
 
 export interface IReview {

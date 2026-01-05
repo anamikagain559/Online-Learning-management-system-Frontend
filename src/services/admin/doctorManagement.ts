@@ -3,7 +3,7 @@
 
 import { serverFetch } from "@/lib/server-fetch";
 import { zodValidator } from "@/lib/zodValidator";
-import { IDoctor } from "@/types/doctor.interface";
+import { IDoctor } from "@/types/travelPlan.interface";
 import { createDoctorZodSchema, updateDoctorZodSchema } from "@/zod/doctors.validation";
 
 export async function createDoctor(_prevState: any, formData: FormData) {

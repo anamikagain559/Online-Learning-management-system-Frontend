@@ -9,13 +9,23 @@ import { getCookie } from "./tokenHandlers";
 export const getUserInfo = async (): Promise<UserInfo | any> => {
     let userInfo: UserInfo | any;
     try {
+   const accessToken = await getCookie("accessToken");
 
-        const response = await serverFetch.get("/auth/me", {
-            cache: "force-cache",
-            next: { tags: ["user-info"] }
-        })
+    if (!accessToken) {
+      return null; // user not logged in
+    }
+   const response = await serverFetch.get("/user/me", {
+      headers: {
+        Authorization: `${accessToken}`,
+      },
+      next: { tags: ["user-info"] },
+    });
 
+    if (!response.ok) {
+      return null;
+    }
         const result = await response.json();
+        console.log(response)
 
         if (result.success) {
             const accessToken = await getCookie("accessToken");
