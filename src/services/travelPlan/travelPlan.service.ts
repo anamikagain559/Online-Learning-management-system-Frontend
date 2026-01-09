@@ -55,7 +55,7 @@ export async function createTravelPlan(data: ITravelPlanFormData) {
 export async function getMyTravelPlans(queryString?: string) {
   try {
     const response = await serverFetch.get(
-      `/travel-plans/me${queryString ? `?${queryString}` : ""}`
+      `/travel-plans/my-plans${queryString ? `?${queryString}` : ""}`
     );
 
     return await response.json();

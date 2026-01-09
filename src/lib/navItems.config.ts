@@ -20,6 +20,7 @@ export const getCommonNavItems = (role: UserRole): NavSection[] => {
                     icon: "User",
                     roles: ["USER", "ADMIN"],
                 },
+           
 
             ]
         },
@@ -40,7 +41,21 @@ export const getCommonNavItems = (role: UserRole): NavSection[] => {
 
 
 export const userNavItems: NavSection[] = [
-   
+ 
+        {
+            items: [
+               
+                   {
+                title: "Travel Plans",
+                href: "/dashboard/travel-plans",
+                icon: "Users", // ✅ String
+                roles: ["USER"],
+            },
+
+            ]
+        },
+        
+    
   
 
 ]

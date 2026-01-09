@@ -5,14 +5,18 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import LogoutButton from "./shared/LogoutButton";
-
+import { getUserInfo } from "@/services/auth/getUserInfo";
 export default async function Navbar() {
+const userInfo = await getUserInfo();
+
 const navItems = [
   { href: "/", label: "Home" },
   { href: "/explore", label: "Explore Travelers" },
   { href: "/subscription", label: "Subscription" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
+  // Only show dashboard if userInfo exists
+  ...(userInfo ? [{ href: "/dashboard", label: "Dashboard" }] : []),
 ];
 
   const accessToken = await getCookie("accessToken");

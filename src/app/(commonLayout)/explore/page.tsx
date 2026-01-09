@@ -1,88 +1,112 @@
-// app/explore/page.tsx
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
-import { Calendar, Link, User } from "lucide-react";
+import Link from "next/link";
+import { Calendar } from "lucide-react";
+import { getPublicTravelPlans } from "@/services/travelPlan/travelPlan.service";
+import { ITravelPlan } from "@/types/travelPlan.interface";
+import { serverFetch } from "@/lib/server-fetch";
 
-// Trip type
-interface Trip {
-  id: string;
-  title: string;
-  location: string;
-  price: number;
-  startDate: string;
-  endDate: string;
-  description: string;
-  spotsLeft: number;
-  host: { name: string; avatar: string };
-  image: string;
+// Star rating component
+function StarRating({ rating }: { rating: number }) {
+  const fullStars = Math.floor(rating);
+  const halfStar = rating - fullStars >= 0.5;
+  const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+
+  return (
+    <div className="flex items-center gap-1 text-yellow-400 text-sm">
+      {Array(fullStars)
+        .fill(0)
+        .map((_, i) => (
+          <span key={`full-${i}`}>★</span>
+        ))}
+      {halfStar && <span>★</span>}
+      {Array(emptyStars)
+        .fill(0)
+        .map((_, i) => (
+          <span key={`empty-${i}`}>☆</span>
+        ))}
+    </div>
+  );
 }
 
-// Mock data (replace with API call)
-const mockTrips: Trip[] = [
-  {
-    id: "1",
-    title: "Tokyo, Japan",
-    location: "Tokyo, Japan",
-    price: 1200,
-    startDate: "Apr 10",
-    endDate: "Apr 17",
-    description:
-      "A week of cherry blossoms, sushi making classes, and exploring the hidden alleys of Tokyo.",
-    spotsLeft: 2,
-    host: { name: "Sarah Chen", avatar: "/avatars/sarah.jpg" },
-    image: "/images/tokyo.jpg",
-  },
-  {
-    id: "2",
-    title: "Reykjavik, Iceland",
-    location: "Reykjavik, Iceland",
-    price: 1800,
-    startDate: "Sep 15",
-    endDate: "Sep 22",
-    description:
-      "Chasing northern lights and hiking glaciers. This is an active trip involving moderate hiking and cold weather.",
-    spotsLeft: 1,
-    host: { name: "Mike Ross", avatar: "/avatars/mike.jpg" },
-    image: "/images/iceland.jpg",
-  },
-  {
-    id: "3",
-    title: "Barcelona, Spain",
-    location: "Barcelona, Spain",
-    price: 950,
-    startDate: "Jun 20",
-    endDate: "Jun 25",
-    description:
-      "Architecture, tapas, and beach vibes. A relaxed trip focusing on Gaudi's masterpieces and culinary delights.",
-    spotsLeft: 4,
-    host: { name: "Elena Rodriguez", avatar: "/avatars/elena.jpg" },
-    image: "/images/barcelona.jpg",
-  },
-];
+// Fetch average rating for a travel plan
+async function fetchRating(travelPlanId: string) {
+  try {
+    const res = await serverFetch.get(`/reviews/travel-plan/${travelPlanId}`);
+    const data = await res.json();
+    if (!data.success || !data.data) return { avg: 0, count: 0 };
+
+    const reviews = data.data;
+    const avg = reviews.length ? reviews.reduce((acc: any, r: any) => acc + r.rating, 0) / reviews.length : 0;
+    return { avg, count: reviews.length };
+  } catch (err) {
+    console.error("Failed to fetch rating", err);
+    return { avg: 0, count: 0 };
+  }
+}
 
 export default function ExplorePage() {
-  const [trips, setTrips] = useState<Trip[]>(mockTrips);
+  const [trips, setTrips] = useState<ITravelPlan[]>([]);
+  const [ratingsMap, setRatingsMap] = useState<Record<string, { avg: number; count: number }>>({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("All Types");
   const [budgetFilter, setBudgetFilter] = useState("Any Budget");
 
+  // Fetch trips and ratings
+  useEffect(() => {
+    const fetchTrips = async () => {
+      setLoading(true);
+      const res = await getPublicTravelPlans();
+      if (res.success) {
+        setTrips(res.data);
+        setError(null);
+
+        // Fetch ratings for each travel plan
+        const ratingsPromises = res.data.map(async (plan: ITravelPlan) => {
+          return { id: plan._id, ...(await fetchRating(plan._id)) };
+        });
+
+        const ratingsArr = await Promise.all(ratingsPromises);
+        const map: Record<string, { avg: number; count: number }> = {};
+        ratingsArr.forEach((r) => (map[r.id] = { avg: r.avg, count: r.count }));
+        setRatingsMap(map);
+      } else {
+        setTrips([]);
+        setError(res.message || "Failed to load travel plans");
+      }
+      setLoading(false);
+    };
+
+    fetchTrips();
+  }, []);
+
   // Filter trips
   const filteredTrips = trips.filter((trip) => {
-    const matchesSearch =
-      trip.title.toLowerCase().includes(search.toLowerCase()) ||
-      trip.location.toLowerCase().includes(search.toLowerCase());
+    const city = trip.destination?.city ?? "";
+    const country = trip.destination?.country ?? "";
+    const matchesSearch = city.toLowerCase().includes(search.toLowerCase()) || country.toLowerCase().includes(search.toLowerCase());
 
-    const matchesType = typeFilter === "All Types" || trip.description.includes(typeFilter);
+    const matchesType =
+      typeFilter === "All Types" ||
+      (trip.travelType && trip.travelType.toUpperCase() === typeFilter.toUpperCase());
+
+    const minBudget = trip.budgetRange?.min ?? 0;
+    const maxBudget = trip.budgetRange?.max ?? 0;
     const matchesBudget =
       budgetFilter === "Any Budget" ||
-      (budgetFilter === "Low" && trip.price < 1000) ||
-      (budgetFilter === "Medium" && trip.price >= 1000 && trip.price <= 1500) ||
-      (budgetFilter === "High" && trip.price > 1500);
+      (budgetFilter === "Low" && maxBudget < 1000) ||
+      (budgetFilter === "Medium" && minBudget >= 1000 && maxBudget <= 1500) ||
+      (budgetFilter === "High" && minBudget > 1500);
 
     return matchesSearch && matchesType && matchesBudget;
   });
+
+  if (loading) return <p className="text-center mt-8">Loading trips...</p>;
+  if (error) return <p className="text-center mt-8 text-red-500">{error}</p>;
 
   return (
     <div className="container mx-auto p-4">
@@ -95,70 +119,59 @@ export default function ExplorePage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        <select
-          className="border rounded-lg px-4 py-2"
-          value={typeFilter}
-          onChange={(e) => setTypeFilter(e.target.value)}
-        >
+        <select className="border rounded-lg px-4 py-2" value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
           <option>All Types</option>
-          <option>Solo</option>
-          <option>Family</option>
-          <option>Friends</option>
+          <option>SOLO</option>
+          <option>FAMILY</option>
+          <option>FRIENDS</option>
         </select>
-        <select
-          className="border rounded-lg px-4 py-2"
-          value={budgetFilter}
-          onChange={(e) => setBudgetFilter(e.target.value)}
-        >
+        <select className="border rounded-lg px-4 py-2" value={budgetFilter} onChange={(e) => setBudgetFilter(e.target.value)}>
           <option>Any Budget</option>
           <option value="Low">Under $1000</option>
           <option value="Medium">$1000 - $1500</option>
           <option value="High">Above $1500</option>
         </select>
-        <button className="border px-4 py-2 rounded-lg">More Filters</button>
       </div>
 
-      {/* Featured Trips */}
+      {/* Trips */}
       <h2 className="text-xl font-bold mb-4">Featured Trips</h2>
       <p className="mb-4">{filteredTrips.length} trips found</p>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {filteredTrips.map((trip) => (
-          <div key={trip.id} className="border rounded-lg overflow-hidden shadow hover:shadow-lg transition">
-            <div className="relative">
-              <Image src={trip.image} alt={trip.title} width={400} height={250} className="object-cover w-full h-56" />
-              <span className="absolute top-2 right-2 bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
-                {trip.spotsLeft} spots left
-              </span>
-            </div>
-            <div className="p-4 flex flex-col gap-2">
-              <h3 className="font-bold text-lg">{trip.title}</h3>
+        {filteredTrips.map((trip) => {
+          const rating = ratingsMap[trip._id]?.avg || 0;
+          const reviewCount = ratingsMap[trip._id]?.count || 0;
+
+          return (
+            <div key={trip._id} className="border rounded-lg p-4 shadow hover:shadow-lg transition flex flex-col gap-2">
+              <h3 className="font-bold text-lg">
+                {trip.destination?.city ?? "Unknown"}, {trip.destination?.country ?? "Unknown"}
+              </h3>
               <div className="flex items-center gap-2 text-gray-500 text-sm">
                 <Calendar className="w-4 h-4" />
                 <span>
-                  {trip.startDate} - {trip.endDate}
+                  {trip.startDate ? new Date(trip.startDate).toLocaleDateString() : "N/A"} -{" "}
+                  {trip.endDate ? new Date(trip.endDate).toLocaleDateString() : "N/A"}
                 </span>
-                <span className="ml-auto font-semibold text-primary">${trip.price}</span>
+                <span className="ml-auto font-semibold text-primary">{trip.travelType ?? "N/A"}</span>
               </div>
-              <p className="text-gray-600 text-sm">{trip.description}</p>
-              <div className="flex items-center justify-between mt-4">
-                <div className="flex items-center gap-2">
-                  <Image
-                    src={trip.host.avatar}
-                    alt={trip.host.name}
-                    width={32}
-                    height={32}
-                    className="rounded-full"
-                  />
-                  <span className="text-sm">{trip.host.name}</span>
-                </div>
-                <Link href={`/travel-plans/${trip.id}`} className="text-primary font-medium hover:underline">
-                  View Details →
-                </Link>
+              <p className="text-gray-600 text-sm">{trip.description ?? ""}</p>
+              <span className="text-sm font-medium text-gray-700">
+                Budget: {trip.budgetRange?.min ?? 0} - {trip.budgetRange?.max ?? 0} USD
+              </span>
+
+              {/* Rating */}
+              <div className="flex items-center gap-2 mt-1">
+                <StarRating rating={rating} />
+                <span className="text-gray-500 text-sm">({reviewCount})</span>
               </div>
+
+              <Link href={`/explore/${trip._id}`} className="text-primary font-medium hover:underline mt-2">
+                View Details →
+              </Link>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

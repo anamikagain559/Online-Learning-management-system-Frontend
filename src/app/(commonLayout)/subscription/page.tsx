@@ -1,91 +1,95 @@
-// app/subscription/page.tsx
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+import CheckoutForm from "@/components/CheckoutForm";
+import { getUserInfo } from "@/services/auth/getUserInfo";
 
-interface Plan {
-  id: string;
-  name: string;
-  price: number;
-  description: string;
-  duration: string;
-}
+const stripePromise = loadStripe(
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
+);
 
 export default function SubscriptionPage() {
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [selectedPlan, setSelectedPlan] =
+    useState<"MONTHLY" | "YEARLY" | null>(null);
 
-  const plans: Plan[] = [
-    { id: "basic", name: "Basic Plan", price: 5, description: "Access basic features", duration: "Monthly" },
-    { id: "premium", name: "Premium Plan", price: 50, description: "Access all premium features", duration: "Yearly" },
-  ];
-
-  const handleSubscribe = async (planId: string) => {
-    setLoading(true);
-    try {
-      // Call backend to create payment intent
-      const res = await fetch("/api/payments/create-intent", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ planId }),
-      });
-      const data = await res.json();
-
-      // Redirect to payment page or integrate Stripe Checkout
-      console.log("Payment Intent:", data);
-
-      // For demo, mark as success
-      setSuccess(true);
-    } catch (err) {
-      console.error("Subscription failed:", err);
-      alert("Payment failed. Please try again.");
-    } finally {
+  useEffect(() => {
+    const loadUser = async () => {
+      const res = await getUserInfo();
+      if (res) setUser(res);
       setLoading(false);
-    }
-  };
+    };
+
+    loadUser();
+  }, []);
+
+  if (loading) {
+    return <p className="text-center mt-20">Loading...</p>;
+  }
+
+  if (!user) {
+    return (
+      <p className="text-center mt-20 text-red-600">
+        Please login first
+      </p>
+    );
+  }
 
   return (
-    <main className="max-w-5xl mx-auto px-6 py-12 space-y-12">
-      <section className="text-center space-y-4">
-        <h1 className="text-4xl font-bold">Choose Your Subscription</h1>
-        <p className="text-gray-600 text-lg">
-          Unlock premium features and verified badges to enhance your travel experience.
-        </p>
-      </section>
+    <div className="max-w-5xl mx-auto py-20">
+      <h1 className="text-3xl font-bold text-center mb-10">
+        Choose Your Subscription
+      </h1>
 
-      {success && (
-        <div className="bg-green-100 text-green-800 p-4 rounded text-center">
-          Payment successful! Your subscription is now active.
+      {/* PLAN SELECTION */}
+      {!selectedPlan && (
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* MONTHLY */}
+          <div className="border p-6 rounded-lg text-center">
+            <h2 className="text-xl font-semibold">Monthly Plan</h2>
+            <p className="text-gray-600 mt-2">$10 / month</p>
+
+            <button
+              onClick={() => setSelectedPlan("MONTHLY")}
+              className="mt-4 bg-blue-600 text-white px-4 py-2 rounded"
+            >
+              Subscribe Monthly
+            </button>
+          </div>
+
+          {/* YEARLY */}
+          <div className="border p-6 rounded-lg text-center">
+            <h2 className="text-xl font-semibold">Yearly Plan</h2>
+            <p className="text-gray-600 mt-2">$100 / year</p>
+
+            <button
+              onClick={() => setSelectedPlan("YEARLY")}
+              className="mt-4 bg-green-600 text-white px-4 py-2 rounded"
+            >
+              Subscribe Yearly
+            </button>
+          </div>
         </div>
       )}
 
-      <section className="grid md:grid-cols-2 gap-8">
-        {plans.map((plan) => (
-          <div
-            key={plan.id}
-            className="border border-gray-200 p-6 rounded-lg shadow hover:shadow-lg transition flex flex-col justify-between"
+      {/* CHECKOUT */}
+      {selectedPlan && (
+        <div className="mt-10">
+          <button
+            onClick={() => setSelectedPlan(null)}
+            className="mb-6 text-sm text-gray-600 underline"
           >
-            <div>
-              <h2 className="text-2xl font-semibold mb-2">{plan.name}</h2>
-              <p className="text-gray-600 mb-4">{plan.description}</p>
-              <p className="text-xl font-bold mb-4">${plan.price} / {plan.duration}</p>
-            </div>
-            <button
-              onClick={() => handleSubscribe(plan.id)}
-              disabled={loading}
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-            >
-              {loading ? "Processing..." : "Subscribe"}
-            </button>
-          </div>
-        ))}
-      </section>
+            ← Change Plan
+          </button>
 
-      <section className="mt-12 text-center text-gray-600">
-        <p>
-          Need help? Contact us at <strong>contact@yourproject.com</strong>
-        </p>
-      </section>
-    </main>
+          <Elements stripe={stripePromise}>
+            <CheckoutForm plan={selectedPlan} user={user} />
+          </Elements>
+        </div>
+      )}
+    </div>
   );
 }

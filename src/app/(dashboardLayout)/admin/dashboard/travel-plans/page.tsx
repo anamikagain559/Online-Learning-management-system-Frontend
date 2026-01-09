@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Swal from "sweetalert2";
 import {
   getAllTravelPlans,
   deleteTravelPlan,
@@ -9,6 +10,21 @@ import {
   updateTravelPlan,
 } from "@/services/travelPlan/travelPlan.service";
 import { ITravelPlan, TravelType } from "@/types/travelPlan.interface";
+
+/* ---------- Helpers ---------- */
+const formatDate = (dateString: string) => {
+  if (!dateString) return "-";
+  return new Date(dateString).toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    timeZone: "Asia/Dhaka",
+  });
+};
+
+const formatBudget = (amount: number) => {
+  return amount.toLocaleString("en-US", { style: "currency", currency: "USD" });
+};
 
 interface FormState {
   city: string;
@@ -40,10 +56,9 @@ export default function AdminTravelPlansPage() {
     description: "",
   });
 
-  // Fetch all travel plans
   const fetchPlans = async () => {
+    setLoading(true);
     const res = await getAllTravelPlans();
-    console.log(res); // debug
     if (res.success) setPlans(res.data);
     setLoading(false);
   };
@@ -52,31 +67,28 @@ export default function AdminTravelPlansPage() {
     fetchPlans();
   }, []);
 
-  // Delete travel plan
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure?")) return;
-    await deleteTravelPlan(id);
-    setPlans(prev => prev.filter(p => p._id !== id));
-  };
-
-  // Open modal to edit travel plan
-  const handleEdit = (plan: ITravelPlan) => {
-    setEditingPlanId(plan._id);
-    setOpen(true);
-    setFormData({
-      city: plan.destination.city,
-      country: plan.destination.country,
-      startDate: plan.startDate.slice(0, 10),
-      endDate: plan.endDate.slice(0, 10),
-      minBudget: String(plan.budgetRange.min),
-      maxBudget: String(plan.budgetRange.max),
-      travelType: plan.travelType,
-      isPublic: plan.isPublic ?? true,
-      description: plan.description || "",
+    const confirmResult = await Swal.fire({
+      title: "Are you sure?",
+      text: "This action cannot be undone!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
     });
+
+    if (!confirmResult.isConfirmed) return;
+
+    const res = await deleteTravelPlan(id);
+    if (res.success) {
+      setPlans(prev => prev.filter(p => p._id !== id));
+      Swal.fire("Deleted!", "Travel plan has been deleted.", "success");
+    } else {
+      Swal.fire("Error!", res.message || "Failed to delete", "error");
+    }
   };
 
-  // Create or update travel plan
   const handleSubmit = async () => {
     const payload = {
       destination: {
@@ -94,9 +106,12 @@ export default function AdminTravelPlansPage() {
       description: formData.description,
     };
 
-    const res = editingPlanId
-      ? await updateTravelPlan(editingPlanId, payload)
-      : await createTravelPlan(payload);
+    let res;
+    if (editingPlanId) {
+      res = await updateTravelPlan(editingPlanId, payload);
+    } else {
+      res = await createTravelPlan(payload);
+    }
 
     if (res.success) {
       setOpen(false);
@@ -113,10 +128,43 @@ export default function AdminTravelPlansPage() {
         description: "",
       });
       fetchPlans();
+      Swal.fire(
+        "Success!",
+        editingPlanId
+          ? "Travel plan updated successfully!"
+          : "Travel plan added successfully!",
+        "success"
+      );
+    } else {
+      Swal.fire("Error!", res.message || "Operation failed", "error");
     }
   };
+const toInputDate = (dateString: string) => {
+  if (!dateString) return "";
+  const d = new Date(dateString);
+  const month = (d.getMonth() + 1).toString().padStart(2, "0");
+  const day = d.getDate().toString().padStart(2, "0");
+  const year = d.getFullYear();
+  return `${year}-${month}-${day}`;
+};
+  const handleEdit = (plan: ITravelPlan) => {
+    setFormData({
+      city: plan.destination.city,
+      country: plan.destination.country,
+      startDate: plan.startDate,
+      endDate: plan.endDate,
+      minBudget: plan.budgetRange.min.toString(),
+      maxBudget: plan.budgetRange.max.toString(),
+      travelType: plan.travelType,
+  isPublic: plan.isPublic ?? true,            // fallback true
+    description: plan.description || "",  
+    });
+    setEditingPlanId(plan._id);
+    setOpen(true);
+  };
 
-  if (loading) return <p className="text-center mt-10">Loading...</p>;
+  if (loading)
+    return <p className="text-center mt-10 text-gray-500">Loading...</p>;
 
   return (
     <div className="max-w-7xl mx-auto p-6">
@@ -126,55 +174,69 @@ export default function AdminTravelPlansPage() {
         <button
           onClick={() => {
             setEditingPlanId(null);
+            setFormData({
+              city: "",
+              country: "",
+              startDate: "",
+              endDate: "",
+              minBudget: "",
+              maxBudget: "",
+              travelType: "SOLO",
+              isPublic: true,
+              description: "",
+            });
             setOpen(true);
           }}
-          className="bg-black text-white px-4 py-2 rounded"
+          className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 transition"
         >
           + Add Travel Plan
         </button>
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full border">
-          <thead className="bg-gray-100">
+      <div className="overflow-x-auto rounded-lg shadow border">
+        <table className="w-full border-collapse">
+          <thead className="bg-gray-100 text-left">
             <tr>
-              <th className="border p-2">Destination</th>
-              <th className="border p-2">User</th>
-              <th className="border p-2">Type</th>
-              <th className="border p-2">Budget</th>
-              <th className="border p-2">Dates</th>
-              <th className="border p-2">Visibility</th>
-              <th className="border p-2">Action</th>
+              <th className="border p-3">Destination</th>
+              <th className="border p-3">User</th>
+              <th className="border p-3">Type</th>
+              <th className="border p-3">Budget</th>
+              <th className="border p-3">Dates</th>
+              <th className="border p-3">Visibility</th>
+              <th className="border p-3">Action</th>
             </tr>
           </thead>
           <tbody>
             {plans.map(plan => (
-              <tr key={plan._id}>
-                <td className="border p-2">
+              <tr
+                key={plan._id}
+                className="hover:bg-gray-50 transition"
+              >
+                <td className="border p-3 font-medium">
                   {plan.destination.city}, {plan.destination.country}
                 </td>
-                <td className="border p-2">{(plan.user as any)?.name || "N/A"}</td>
-                <td className="border p-2">{plan.travelType}</td>
-                <td className="border p-2">
-                  ${plan.budgetRange.min} – ${plan.budgetRange.max}
+                <td className="border p-3">{(plan.user as any)?.name || "N/A"}</td>
+                <td className="border p-3">{plan.travelType}</td>
+                <td className="border p-3">
+                  {formatBudget(plan.budgetRange.min)} – {formatBudget(plan.budgetRange.max)}
                 </td>
-                <td className="border p-2">
-                  {plan.startDate} → {plan.endDate}
+                <td className="border p-3">
+                  {formatDate(plan.startDate)} → {formatDate(plan.endDate)}
                 </td>
-                <td className="border p-2">
+                <td className="border p-3">
                   {plan.isPublic ? "Public" : "Private"}
                 </td>
-                <td className="border p-2 space-x-2">
+                <td className="border p-3 flex gap-2">
                   <button
                     onClick={() => handleEdit(plan)}
-                    className="text-blue-600"
+                    className="text-blue-600 hover:underline"
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => handleDelete(plan._id)}
-                    className="text-red-600"
+                    className="text-red-600 hover:underline"
                   >
                     Delete
                   </button>
@@ -187,57 +249,66 @@ export default function AdminTravelPlansPage() {
 
       {/* Modal */}
       {open && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
-          <div className="bg-white w-full max-w-lg p-6 rounded space-y-3">
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white w-full max-w-lg p-6 rounded-lg space-y-4 shadow-lg">
             <h2 className="text-xl font-bold">
               {editingPlanId ? "Edit Travel Plan" : "Add Travel Plan"}
             </h2>
 
-            <input
-              placeholder="City"
-              className="input"
-              value={formData.city}
-              onChange={e => setFormData({ ...formData, city: e.target.value })}
-            />
-            <input
-              placeholder="Country"
-              className="input"
-              value={formData.country}
-              onChange={e => setFormData({ ...formData, country: e.target.value })}
-            />
-            <input
-              type="date"
-              className="input"
-              value={formData.startDate}
-              onChange={e => setFormData({ ...formData, startDate: e.target.value })}
-            />
-            <input
-              type="date"
-              className="input"
-              value={formData.endDate}
-              onChange={e => setFormData({ ...formData, endDate: e.target.value })}
-            />
-            <input
-              placeholder="Min Budget"
-              className="input"
-              value={formData.minBudget}
-              onChange={e => setFormData({ ...formData, minBudget: e.target.value })}
-            />
-            <input
-              placeholder="Max Budget"
-              className="input"
-              value={formData.maxBudget}
-              onChange={e => setFormData({ ...formData, maxBudget: e.target.value })}
-            />
+            <div className="grid grid-cols-2 gap-3">
+              <input
+                placeholder="City"
+                className="input"
+                value={formData.city}
+                onChange={e => setFormData({ ...formData, city: e.target.value })}
+              />
+              <input
+                placeholder="Country"
+                className="input"
+                value={formData.country}
+                onChange={e =>
+                  setFormData({ ...formData, country: e.target.value })
+                }
+              />
+     <input
+  type="date"
+  className="input"
+  value={toInputDate(formData.startDate)}
+  onChange={e =>
+    setFormData({ ...formData, startDate: e.target.value })
+  }
+/>
+<input
+  type="date"
+  className="input"
+  value={toInputDate(formData.endDate)}
+  onChange={e =>
+    setFormData({ ...formData, endDate: e.target.value })
+  }
+/>
+              <input
+                placeholder="Min Budget"
+                className="input"
+                value={formData.minBudget}
+                onChange={e =>
+                  setFormData({ ...formData, minBudget: e.target.value })
+                }
+              />
+              <input
+                placeholder="Max Budget"
+                className="input"
+                value={formData.maxBudget}
+                onChange={e =>
+                  setFormData({ ...formData, maxBudget: e.target.value })
+                }
+              />
+            </div>
 
             <select
-              className="input"
+              className="input w-full"
               value={formData.travelType}
               onChange={e =>
-                setFormData({
-                  ...formData,
-                  travelType: e.target.value as TravelType,
-                })
+                setFormData({ ...formData, travelType: e.target.value as TravelType })
               }
             >
               <option value="SOLO">Solo</option>
@@ -247,16 +318,21 @@ export default function AdminTravelPlansPage() {
 
             <textarea
               placeholder="Description"
-              className="input"
+              className="input w-full"
               value={formData.description}
               onChange={e => setFormData({ ...formData, description: e.target.value })}
             />
 
-            <div className="flex justify-end gap-3 mt-4">
-              <button onClick={() => setOpen(false)}>Cancel</button>
+            <div className="flex justify-end gap-3 mt-2">
+              <button
+                onClick={() => setOpen(false)}
+                className="px-4 py-2 border rounded hover:bg-gray-100 transition"
+              >
+                Cancel
+              </button>
               <button
                 onClick={handleSubmit}
-                className="bg-black text-white px-4 py-2 rounded"
+                className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 transition"
               >
                 {editingPlanId ? "Update" : "Save"}
               </button>
