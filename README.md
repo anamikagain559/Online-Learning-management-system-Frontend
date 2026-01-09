@@ -5,8 +5,8 @@ A full-stack social travel platform that helps travelers find compatible travel 
 ---
 
 ## 🌍 Live URLs
-- **Frontend Live URL:** _[Add Frontend Deployment URL Here]_  
-- **Backend Live URL:** _[Add Backend Deployment URL Here]_
+- **Frontend Live URL:** _[(https://travel-buddy-azure.vercel.app)]_  
+- **Backend Live URL:** _[(https://travel-buddy-backend-kappa.vercel.app)]_
 
 ---
 
