@@ -4,16 +4,16 @@ import { DateCell } from "@/components/shared/cell/DateCell";
 import { StatusBadgeCell } from "@/components/shared/cell/StatusBadgeCell";
 import { UserInfoCell } from "@/components/shared/cell/UserInfoCell";
 import { Column } from "@/components/shared/ManagementTable";
-import { IPatient } from "@/types/patient.interface";
+import { IUser } from "@/types/patient.interface";
 
-export const patientsColumns: Column<IPatient>[] = [
+export const patientsColumns: Column<IUser>[] = [
   {
     header: "Patient",
     accessor: (patient) => (
       <UserInfoCell
         name={patient.name}
         email={patient.email}
-        photo={patient.profilePhoto}
+        photo={patient.picture}
       />
     ),
     sortKey: "name",
@@ -22,7 +22,7 @@ export const patientsColumns: Column<IPatient>[] = [
     header: "Contact",
     accessor: (patient) => (
       <div className="flex flex-col">
-        <span className="text-sm">{patient.contactNumber}</span>
+        <span className="text-sm">{patient.phone}</span>
       </div>
     ),
   },
@@ -31,19 +31,8 @@ export const patientsColumns: Column<IPatient>[] = [
     accessor: (patient) => (
       <span className="text-sm">{patient.address || "N/A"}</span>
     ),
-  },
-  {
-    header: "Gender",
-    accessor: (patient) => (
-      <span className="text-sm capitalize">
-        {patient.patientHealthData?.gender?.toLowerCase() || "N/A"}
-      </span>
-    ),
-  },
-  {
-    header: "Status",
-    accessor: (patient) => <StatusBadgeCell isDeleted={patient.isDeleted} />,
-  },
+  }
+,
   {
     header: "Joined",
     accessor: (patient) => <DateCell date={patient.createdAt} />,

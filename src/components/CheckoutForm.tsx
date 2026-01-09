@@ -32,23 +32,25 @@ export default function CheckoutForm({
   /**
    * STEP 1: Create PaymentIntent (SERVER decides price)
    */
-  useEffect(() => {
-    const initPayment = async () => {
-      try {
-        const res = await createPaymentIntent({ plan });
+ useEffect(() => {
+  const initPayment = async () => {
+    try {
+      const price = plan === "MONTHLY" ? 10 : 100; // define price
+      const res = await createPaymentIntent({ plan, price });
 
-        if (res?.success && res?.data?.clientSecret) {
-          setClientSecret(res.data.clientSecret);
-        } else {
-          setError(res?.message || "Failed to initialize payment");
-        }
-      } catch {
-        setError("Payment initialization failed");
+      if (res?.success && res?.data?.clientSecret) {
+        setClientSecret(res.data.clientSecret);
+      } else {
+        setError(res?.message || "Failed to initialize payment");
       }
-    };
+    } catch {
+      setError("Payment initialization failed");
+    }
+  };
 
-    initPayment();
-  }, [plan]);
+  initPayment();
+}, [plan]);
+
 
   /**
    * STEP 2: Confirm card payment

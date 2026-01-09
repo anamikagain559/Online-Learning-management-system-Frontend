@@ -2,7 +2,7 @@
 
 import DeleteConfirmationDialog from "@/components/shared/DeleteConfirmationDialog";
 import ManagementTable from "@/components/shared/ManagementTable";
-import { IPatient } from "@/types/patient.interface";
+import { IUser } from "@/types/patient.interface";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
@@ -11,15 +11,15 @@ import { patientsColumns } from "./patientsColumns";
 import PatientViewDetailDialog from "./PatientsViewDetailDialog";
 
 interface PatientsTableProps {
-  patients: IPatient[];
+  patients: IUser[];
 }
 
 const PatientsTable = ({ patients }: PatientsTableProps) => {
   const router = useRouter();
   const [, startTransition] = useTransition();
-  const [deletingPatient, setDeletingPatient] = useState<IPatient | null>(null);
-  const [viewingPatient, setViewingPatient] = useState<IPatient | null>(null);
-  const [editingPatient, setEditingPatient] = useState<IPatient | null>(null);
+  const [deletingPatient, setDeletingPatient] = useState<IUser | null>(null);
+  const [viewingPatient, setViewingPatient] = useState<IUser | null>(null);
+  const [editingPatient, setEditingPatient] = useState<IUser | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleRefresh = () => {
@@ -28,15 +28,15 @@ const PatientsTable = ({ patients }: PatientsTableProps) => {
     });
   };
 
-  const handleView = (patient: IPatient) => {
+  const handleView = (patient: IUser) => {
     setViewingPatient(patient);
   };
 
-  const handleEdit = (patient: IPatient) => {
+  const handleEdit = (patient: IUser) => {
     setEditingPatient(patient);
   };
 
-  const handleDelete = (patient: IPatient) => {
+  const handleDelete = (patient: IUser) => {
     setDeletingPatient(patient);
   };
 

@@ -25,8 +25,7 @@ export const getUserInfo = async (): Promise<UserInfo | any> => {
       return null;
     }
         const result = await response.json();
-        console.log(response)
-
+  
         if (result.success) {
             const accessToken = await getCookie("accessToken");
 

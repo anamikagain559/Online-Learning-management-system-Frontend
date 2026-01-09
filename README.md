@@ -1,36 +1,244 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🧳 Travel Buddy & Meetup Platform
 
-## Getting Started
+A full-stack social travel platform that helps travelers find compatible travel buddies, plan trips together, and build meaningful connections. The platform blends **social networking**, **travel planning**, and **subscription-based premium features** to turn solo trips into shared adventures.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 🌍 Live URLs
+- **Frontend Live URL:** _[Add Frontend Deployment URL Here]_  
+- **Backend Live URL:** _[Add Backend Deployment URL Here]_
+
+---
+
+## 📌 Project Overview
+**Travel Buddy & Meetup** aims to create a vibrant community of travelers by enabling users to:
+- Share upcoming travel plans
+- Discover travelers going to similar destinations
+- Match based on interests, dates, and travel type
+- Review and rate travel companions after trips
+
+This platform empowers users to explore the world **together**, not alone.
+
+---
+
+## 🎯 Objectives
+- Build a social-travel web platform for connecting travelers
+- Enable trip sharing and traveler matching
+- Allow users to create detailed travel profiles and itineraries
+- Provide a secure and engaging UI/UX
+- Implement role-based authentication and data persistence
+
+---
+
+## ✨ Core Features
+
+### 🔐 Authentication & Roles
+- Email & Password based authentication
+- JWT-based authorization
+- Secure password hashing
+- **Roles:**
+  - **User:** Create travel plans, match with others, review travelers
+  - **Admin:** Manage users, travel plans, and platform content
+
+---
+
+### 👤 User Profile Management (CRUD)
+- Full Name
+- Profile Image (Cloudinary / ImgBB)
+- Bio / About section
+- Travel Interests (hiking, food tours, photography, etc.)
+- Visited Countries
+- Current Location
+- Public profile view for other users
+
+---
+
+### 🧳 Travel Plan Management (CRUD)
+- Destination (Country / City)
+- Start Date & End Date
+- Budget Range
+- Travel Type (Solo, Family, Friends)
+- Short itinerary / description
+- Plans are publicly visible for discovery and matching
+
+---
+
+### 🔍 Search & Matching System
+- Search by destination
+- Filter by date range
+- Match by travel interests
+- View compatible traveler profiles
+
+---
+
+### ⭐ Review & Rating System
+- Post-trip reviews between travelers
+- Rating system (1–5 stars)
+- Edit or delete reviews
+- Average rating displayed on user profiles
+
+---
+
+### 💳 Payment & Subscription
+- Monthly & Yearly subscription plans
+- Verified badge for premium users
+- Payment gateway integration:
+  - Stripe / SSLCommerz / others
+
+---
+
+## 🧭 Pages & Functional Requirements
+
+### 🧩 Navbar
+**Logged Out:**
+- Home
+- Explore Travelers
+- Find Travel Buddy
+- Login
+- Register
+
+**Logged In (User):**
+- Home
+- Explore Travelers
+- My Travel Plans
+- Profile
+- Logout
+
+**Logged In (Admin):**
+- Home
+- Admin Dashboard
+- Manage Users
+- Manage Travel Plans
+- Profile
+- Logout
+
+---
+
+### 🏠 Home Page (/)
+Minimum **6 sections**, including:
+- Hero section with CTA
+- How It Works (3 steps)
+- Popular Destinations
+- Top-Rated Travelers
+- Testimonials
+- Why Choose Us
+
+---
+
+### 📄 Other Pages
+- **/register** – User registration
+- **/login** – Secure login
+- **/profile/[id]** – User profile & reviews
+- **/dashboard** – User/Admin dashboard
+- **/travel-plans** – List of user travel plans
+- **/travel-plans/add** – Create new travel plan
+- **/travel-plans/[id]** – Travel plan details & join request
+- **/explore** – Search & match travelers
+
+---
+
+## 🚀 Optional Features
+| Feature | Description |
+|------|------------|
+| 📍 Map Integration | Show nearby travelers using Google Maps API |
+| 📨 Notifications | In-app or push notifications |
+| 📸 Media Sharing | Share travel photos |
+
+---
+
+## 🗂 Folder Structure
+
+### Frontend
+```
+frontend/
+ ├── app/
+ │   ├── (auth)/login, register
+ │   ├── (user)/profile, travel-plans
+ │   ├── components/
+ │   ├── utils/
+ │   └── styles/
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Backend
+```
+backend/
+ ├── src/
+ │   ├── modules/
+ │   │   ├── users/
+ │   │   ├── travelPlans/
+ │   │   ├── reviews/
+ │   │   ├── payments/
+ │   └── ...
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🌐 API Endpoints
 
-## Learn More
+| Method | Endpoint | Description |
+|------|---------|-------------|
+| POST | /api/auth/register | Register new user |
+| POST | /api/auth/login | Login user |
+| GET | /api/users/:id | Get user profile |
+| PATCH | /api/users/:id | Update user profile |
+| POST | /api/travel-plans | Create travel plan |
+| GET | /api/travel-plans | Get all travel plans |
+| GET | /api/travel-plans/match | Search & match travelers |
+| POST | /api/reviews | Add review |
+| POST | /api/payments/create-intent | Create payment intent |
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🛠 Technology Stack
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Frontend
+- Next.js
+- Tailwind CSS
 
-## Deploy on Vercel
+### Backend
+- Node.js
+- Express.js
+- Prisma / Mongoose
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Database
+- PostgreSQL / MongoDB
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Authentication
+- JWT (JSON Web Token)
+
+### Payments
+- SSLCommerz / Stripe
+
+### Deployment
+- Frontend: Vercel
+- Backend: Render / Railway
+
+---
+
+## 📦 Installation & Setup (Optional)
+```bash
+# Frontend
+cd frontend
+npm install
+npm run dev
+
+# Backend
+cd backend
+npm install
+npm run dev
+```
+
+---
+
+## 🤝 Contribution
+Contributions, issues, and feature requests are welcome.
+
+---
+
+## 📜 License
+This project is developed for educational and portfolio purposes.
+
+---
+
+✨ *Travel together. Explore more. Connect globally.*
+

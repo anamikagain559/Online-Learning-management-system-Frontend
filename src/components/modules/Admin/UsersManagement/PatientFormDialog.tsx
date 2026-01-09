@@ -9,9 +9,43 @@ import {
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { updatePatient } from "@/services/admin/usersManagement";
-import { IUser } from "@/types/patient.interface";
+
 import { useActionState, useEffect, useRef } from "react";
 import { toast } from "sonner";
+export enum Role {
+  ADMIN = "ADMIN",
+  USER = "USER",
+}
+
+export enum IsActive {
+  ACTIVE = "ACTIVE",
+  INACTIVE = "INACTIVE",
+  BLOCKED = "BLOCKED",
+}
+
+export interface IAuthProvider {
+  provider: string;
+  providerId: string;
+}
+export interface IUser {
+  id: string; // frontend-friendly (string, not ObjectId)
+  name: string;
+  email: string;
+  phone?: string;
+  picture?: string; // make optional if sometimes missing
+  bio?: string;
+  travelInterests?: string[];
+  visitedCountries?: string[];
+  currentLocation?: string;
+  address?: string;
+
+  role: Role;
+  isActive?: IsActive;
+  isVerified?: boolean;
+
+  createdAt: string;
+  updatedAt: string;
+}
 
 interface IPatientFormDialogProps {
   open: boolean;
@@ -97,7 +131,7 @@ const PatientFormDialog = ({
                 name="contactNumber"
                 placeholder="+1234567890"
                 defaultValue={
-                  state?.formData?.contactNumber || patient?.contactNumber || ""
+                  state?.formData?.contactNumber || patient?.phone || ""
                 }
               />
               <InputFieldError field="contactNumber" state={state} />
