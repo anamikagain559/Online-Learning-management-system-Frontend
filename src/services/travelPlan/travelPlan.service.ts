@@ -26,7 +26,34 @@ export async function getAllTravelPlans(queryString?: string) {
     };
   }
 }
+export async function getMatchedTravelPlans(query: {
+  destination?: string;
+  startDate?: string;
+  endDate?: string;
+  travelType?: string;
+}) {
+  try {
+    const params = new URLSearchParams();
 
+    if (query.destination) params.append("destination", query.destination);
+    if (query.startDate) params.append("startDate", query.startDate);
+    if (query.endDate) params.append("endDate", query.endDate);
+    if (query.travelType) params.append("travelType", query.travelType);
+
+    const response = await fetch(`/travel-plans/match?${params.toString()}`, {
+      credentials: "include"
+    });
+
+    return await response.json();
+  } catch (error: any) {
+    console.error("Error fetching matched travel plans:", error);
+    return {
+      success: false,
+      data: [],
+      message: error.message || "Failed to fetch matched travel plans"
+    };
+  }
+}
 export async function createTravelPlan(data: ITravelPlanFormData) {
   try {
     const response = await serverFetch.post("/travel-plans", {

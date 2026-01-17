@@ -4,8 +4,13 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Calendar } from "lucide-react";
 import { getPublicTravelPlans } from "@/services/travelPlan/travelPlan.service";
+import { getUserById } from "@/services/admin/usersManagement";
 import { ITravelPlan } from "@/types/travelPlan.interface";
+import { IUser } from "@/types/travelers.interface";
 import { serverFetch } from "@/lib/server-fetch";
+
+// Default creator image
+const DEFAULT_IMAGE = "https://i.ibb.co/SxP3NYv/pexels-liza-summer-6347919.jpg";
 
 // Star rating component
 function StarRating({ rating }: { rating: number }) {
@@ -15,17 +20,9 @@ function StarRating({ rating }: { rating: number }) {
 
   return (
     <div className="flex items-center gap-1 text-yellow-400 text-sm">
-      {Array(fullStars)
-        .fill(0)
-        .map((_, i) => (
-          <span key={`full-${i}`}>★</span>
-        ))}
+      {Array(fullStars).fill(0).map((_, i) => <span key={`full-${i}`}>★</span>)}
       {halfStar && <span>★</span>}
-      {Array(emptyStars)
-        .fill(0)
-        .map((_, i) => (
-          <span key={`empty-${i}`}>☆</span>
-        ))}
+      {Array(emptyStars).fill(0).map((_, i) => <span key={`empty-${i}`}>☆</span>)}
     </div>
   );
 }
@@ -36,9 +33,10 @@ async function fetchRating(travelPlanId: string) {
     const res = await serverFetch.get(`/reviews/travel-plan/${travelPlanId}`);
     const data = await res.json();
     if (!data.success || !data.data) return { avg: 0, count: 0 };
-
     const reviews = data.data;
-    const avg = reviews.length ? reviews.reduce((acc: any, r: any) => acc + r.rating, 0) / reviews.length : 0;
+    const avg = reviews.length
+      ? reviews.reduce((acc: any, r: any) => acc + r.rating, 0) / reviews.length
+      : 0;
     return { avg, count: reviews.length };
   } catch (err) {
     console.error("Failed to fetch rating", err);
@@ -49,6 +47,7 @@ async function fetchRating(travelPlanId: string) {
 export default function ExplorePage() {
   const [trips, setTrips] = useState<ITravelPlan[]>([]);
   const [ratingsMap, setRatingsMap] = useState<Record<string, { avg: number; count: number }>>({});
+  const [creatorsMap, setCreatorsMap] = useState<Record<string, IUser>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -56,39 +55,70 @@ export default function ExplorePage() {
   const [typeFilter, setTypeFilter] = useState("All Types");
   const [budgetFilter, setBudgetFilter] = useState("Any Budget");
 
-  // Fetch trips and ratings
   useEffect(() => {
-    const fetchTrips = async () => {
+    const fetchTripsAndCreators = async () => {
       setLoading(true);
-      const res = await getPublicTravelPlans();
-      if (res.success) {
-        setTrips(res.data);
-        setError(null);
 
-        // Fetch ratings for each travel plan
-        const ratingsPromises = res.data.map(async (plan: ITravelPlan) => {
-          return { id: plan._id, ...(await fetchRating(plan._id)) };
-        });
+      try {
+        // 1️⃣ Fetch travel plans
+        const res = await getPublicTravelPlans();
+        if (!res.success) {
+          setError(res.message || "Failed to load travel plans");
+          setLoading(false);
+          return;
+        }
+
+        setTrips(res.data);
+
+        // 2️⃣ Fetch ratings for each trip
+        const ratingsPromises = res.data.map(async (plan: ITravelPlan) => ({
+          id: plan._id,
+          ...(await fetchRating(plan._id)),
+        }));
 
         const ratingsArr = await Promise.all(ratingsPromises);
-        const map: Record<string, { avg: number; count: number }> = {};
-        ratingsArr.forEach((r) => (map[r.id] = { avg: r.avg, count: r.count }));
-        setRatingsMap(map);
-      } else {
-        setTrips([]);
-        setError(res.message || "Failed to load travel plans");
+        const ratingsMapTemp: Record<string, { avg: number; count: number }> = {};
+        ratingsArr.forEach((r) => (ratingsMapTemp[r.id] = { avg: r.avg, count: r.count }));
+        setRatingsMap(ratingsMapTemp);
+
+        // 3️⃣ Fetch creator info for each trip
+        const creatorsTemp: Record<string, IUser> = {};
+        await Promise.all(
+          res.data.map(async (trip: ITravelPlan) => {
+            const userId = trip.user?._id;
+            if (!userId || creatorsTemp[userId]) return;
+
+            try {
+              const userRes = await getUserById(userId);
+              if (userRes.success && userRes.data) {
+                creatorsTemp[userId] = userRes.data;
+              }
+            } catch (err) {
+              console.error("Failed to fetch creator", userId, err);
+            }
+          })
+        );
+
+        setCreatorsMap(creatorsTemp);
+        setError(null);
+      } catch (err) {
+        console.error(err);
+        setError("Something went wrong while fetching trips");
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
-    fetchTrips();
+    fetchTripsAndCreators();
   }, []);
 
   // Filter trips
   const filteredTrips = trips.filter((trip) => {
     const city = trip.destination?.city ?? "";
     const country = trip.destination?.country ?? "";
-    const matchesSearch = city.toLowerCase().includes(search.toLowerCase()) || country.toLowerCase().includes(search.toLowerCase());
+    const matchesSearch =
+      city.toLowerCase().includes(search.toLowerCase()) ||
+      country.toLowerCase().includes(search.toLowerCase());
 
     const matchesType =
       typeFilter === "All Types" ||
@@ -119,13 +149,21 @@ export default function ExplorePage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        <select className="border rounded-lg px-4 py-2" value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
+        <select
+          className="border rounded-lg px-4 py-2"
+          value={typeFilter}
+          onChange={(e) => setTypeFilter(e.target.value)}
+        >
           <option>All Types</option>
           <option>SOLO</option>
           <option>FAMILY</option>
           <option>FRIENDS</option>
         </select>
-        <select className="border rounded-lg px-4 py-2" value={budgetFilter} onChange={(e) => setBudgetFilter(e.target.value)}>
+        <select
+          className="border rounded-lg px-4 py-2"
+          value={budgetFilter}
+          onChange={(e) => setBudgetFilter(e.target.value)}
+        >
           <option>Any Budget</option>
           <option value="Low">Under $1000</option>
           <option value="Medium">$1000 - $1500</option>
@@ -141,12 +179,29 @@ export default function ExplorePage() {
         {filteredTrips.map((trip) => {
           const rating = ratingsMap[trip._id]?.avg || 0;
           const reviewCount = ratingsMap[trip._id]?.count || 0;
-
+          const creator = trip.user?.name || { name: "Unknown", picture: DEFAULT_IMAGE };
+console.log(trip);
           return (
-            <div key={trip._id} className="border rounded-lg p-4 shadow hover:shadow-lg transition flex flex-col gap-2">
+            <div
+              key={trip._id}
+              className="border rounded-lg p-4 shadow hover:shadow-lg transition flex flex-col gap-2"
+            >
+              {/* Creator */}
+          <div className="flex items-center gap-2 mb-2">
+          <Link href={`/allUser/${trip.user?._id}`} className="flex items-center gap-2">
+            <img
+              src={trip.user?.picture || DEFAULT_IMAGE}
+              alt={trip.user?.name || "User"}
+              className="w-8 h-8 rounded-full object-cover"
+            />
+            <span className="text-sm font-medium">{trip.user?.name || "Unknown"}</span>
+          </Link>
+        </div>
+
               <h3 className="font-bold text-lg">
                 {trip.destination?.city ?? "Unknown"}, {trip.destination?.country ?? "Unknown"}
               </h3>
+
               <div className="flex items-center gap-2 text-gray-500 text-sm">
                 <Calendar className="w-4 h-4" />
                 <span>
@@ -155,6 +210,7 @@ export default function ExplorePage() {
                 </span>
                 <span className="ml-auto font-semibold text-primary">{trip.travelType ?? "N/A"}</span>
               </div>
+
               <p className="text-gray-600 text-sm">{trip.description ?? ""}</p>
               <span className="text-sm font-medium text-gray-700">
                 Budget: {trip.budgetRange?.min ?? 0} - {trip.budgetRange?.max ?? 0} USD
@@ -166,7 +222,10 @@ export default function ExplorePage() {
                 <span className="text-gray-500 text-sm">({reviewCount})</span>
               </div>
 
-              <Link href={`/explore/${trip._id}`} className="text-primary font-medium hover:underline mt-2">
+              <Link
+                href={`/explore/${trip._id}`}
+                className="text-primary font-medium hover:underline mt-2"
+              >
                 View Details →
               </Link>
             </div>

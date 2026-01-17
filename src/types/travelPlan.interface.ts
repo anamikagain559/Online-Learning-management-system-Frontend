@@ -18,7 +18,11 @@ export interface ITravelPlanFormData {
 
 export interface ITravelPlan extends ITravelPlanFormData {
   _id: string;
-  user: string;
+  user?: {
+    _id: string;
+    name: string;
+    picture?: string;
+  } | null;
   createdAt: string;
   updatedAt: string;
 }

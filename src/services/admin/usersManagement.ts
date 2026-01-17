@@ -27,7 +27,7 @@ export async function getUsers(queryString?: string) {
  * GET PATIENT BY ID
  * API: GET /patient/:id
  */
-export async function getPatientById(id: string) {
+export async function getUserById(id: string) {
     try {
         const response = await serverFetch.get(`/user/${id}`)
         const result = await response.json();
