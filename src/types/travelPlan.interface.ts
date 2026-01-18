@@ -14,6 +14,7 @@ export interface ITravelPlanFormData {
   travelType: TravelType;
   description?: string;
   isPublic?: boolean;
+  image?: string; // ✅ optional image URL
 }
 
 export interface ITravelPlan extends ITravelPlanFormData {
@@ -22,6 +23,7 @@ export interface ITravelPlan extends ITravelPlanFormData {
     _id: string;
     name: string;
     picture?: string;
+    email?: string;
   } | null;
   createdAt: string;
   updatedAt: string;

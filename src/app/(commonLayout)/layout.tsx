@@ -1,6 +1,6 @@
 import React from "react";
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import {Footer} from "@/components/Footer";
 
 type CommonLayoutProps = {
   children: React.ReactNode;
@@ -8,10 +8,10 @@ type CommonLayoutProps = {
 
 export default function CommonLayout({ children }: CommonLayoutProps) {
   return (
-    <>
+    <div className="flex min-h-screen flex-col">
       <Navbar />
-      <main className="min-h-screen px-6">{children}</main>
-      <Footer />
-    </>
+      <main className="flex-1 px-6 min-h-screen ">{children}</main>
+      <Footer className="pl-6"/>
+    </div>
   );
 }

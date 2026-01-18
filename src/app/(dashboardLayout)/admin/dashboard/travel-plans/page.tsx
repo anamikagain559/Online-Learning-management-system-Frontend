@@ -22,8 +22,12 @@ const formatDate = (dateString: string) => {
   });
 };
 
-const formatBudget = (amount: number) => {
-  return amount.toLocaleString("en-US", { style: "currency", currency: "USD" });
+const formatBudget = (amount?: number) => {
+  if (typeof amount !== "number") return "N/A";
+  return amount.toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD",
+  });
 };
 
 interface FormState {
@@ -36,6 +40,7 @@ interface FormState {
   travelType: TravelType;
   isPublic: boolean;
   description: string;
+  image: string; // ✅ added image field
 }
 
 export default function AdminTravelPlansPage() {
@@ -54,6 +59,7 @@ export default function AdminTravelPlansPage() {
     travelType: "SOLO",
     isPublic: true,
     description: "",
+    image: "",
   });
 
   const fetchPlans = async () => {
@@ -89,6 +95,32 @@ export default function AdminTravelPlansPage() {
     }
   };
 
+  const toInputDate = (dateString: string) => {
+    if (!dateString) return "";
+    const d = new Date(dateString);
+    const month = (d.getMonth() + 1).toString().padStart(2, "0");
+    const day = d.getDate().toString().padStart(2, "0");
+    const year = d.getFullYear();
+    return `${year}-${month}-${day}`;
+  };
+
+  const handleEdit = (plan: ITravelPlan) => {
+    setFormData({
+      city: plan.destination.city,
+      country: plan.destination.country,
+      startDate: plan.startDate,
+      endDate: plan.endDate,
+      minBudget: plan.budgetRange?.min?.toString() ?? "",
+      maxBudget: plan.budgetRange?.max?.toString() ?? "",
+      travelType: plan.travelType,
+      isPublic: plan.isPublic ?? true,
+      description: plan.description || "",
+      image: (plan as any).image || "", // ✅ image from plan
+    });
+    setEditingPlanId(plan._id);
+    setOpen(true);
+  };
+
   const handleSubmit = async () => {
     const payload = {
       destination: {
@@ -104,6 +136,7 @@ export default function AdminTravelPlansPage() {
       travelType: formData.travelType,
       isPublic: formData.isPublic,
       description: formData.description,
+      image: formData.image, // ✅ include image in payload
     };
 
     let res;
@@ -126,6 +159,7 @@ export default function AdminTravelPlansPage() {
         travelType: "SOLO",
         isPublic: true,
         description: "",
+        image: "",
       });
       fetchPlans();
       Swal.fire(
@@ -138,29 +172,6 @@ export default function AdminTravelPlansPage() {
     } else {
       Swal.fire("Error!", res.message || "Operation failed", "error");
     }
-  };
-const toInputDate = (dateString: string) => {
-  if (!dateString) return "";
-  const d = new Date(dateString);
-  const month = (d.getMonth() + 1).toString().padStart(2, "0");
-  const day = d.getDate().toString().padStart(2, "0");
-  const year = d.getFullYear();
-  return `${year}-${month}-${day}`;
-};
-  const handleEdit = (plan: ITravelPlan) => {
-    setFormData({
-      city: plan.destination.city,
-      country: plan.destination.country,
-      startDate: plan.startDate,
-      endDate: plan.endDate,
-      minBudget: plan.budgetRange.min.toString(),
-      maxBudget: plan.budgetRange.max.toString(),
-      travelType: plan.travelType,
-  isPublic: plan.isPublic ?? true,            // fallback true
-    description: plan.description || "",  
-    });
-    setEditingPlanId(plan._id);
-    setOpen(true);
   };
 
   if (loading)
@@ -184,6 +195,7 @@ const toInputDate = (dateString: string) => {
               travelType: "SOLO",
               isPublic: true,
               description: "",
+              image: "",
             });
             setOpen(true);
           }}
@@ -198,6 +210,7 @@ const toInputDate = (dateString: string) => {
         <table className="w-full border-collapse">
           <thead className="bg-gray-100 text-left">
             <tr>
+              <th className="border p-3">Image</th> {/* ✅ New column */}
               <th className="border p-3">Destination</th>
               <th className="border p-3">User</th>
               <th className="border p-3">Type</th>
@@ -209,24 +222,34 @@ const toInputDate = (dateString: string) => {
           </thead>
           <tbody>
             {plans.map(plan => (
-              <tr
-                key={plan._id}
-                className="hover:bg-gray-50 transition"
-              >
+              <tr key={plan._id} className="hover:bg-gray-50 transition">
+                <td className="border p-3">
+                  {plan.image ? (
+                    <img
+                      src={plan.image}
+                      alt="Travel Plan"
+                      className="h-16 w-24 object-cover rounded"
+                    />
+                  ) : (
+                    "N/A"
+                  )}
+                </td>
                 <td className="border p-3 font-medium">
                   {plan.destination.city}, {plan.destination.country}
                 </td>
                 <td className="border p-3">{(plan.user as any)?.name || "N/A"}</td>
                 <td className="border p-3">{plan.travelType}</td>
                 <td className="border p-3">
-                  {formatBudget(plan.budgetRange.min)} – {formatBudget(plan.budgetRange.max)}
+                  {plan.budgetRange
+                    ? `${formatBudget(plan.budgetRange.min)} – ${formatBudget(
+                        plan.budgetRange.max
+                      )}`
+                    : "N/A"}
                 </td>
                 <td className="border p-3">
                   {formatDate(plan.startDate)} → {formatDate(plan.endDate)}
                 </td>
-                <td className="border p-3">
-                  {plan.isPublic ? "Public" : "Private"}
-                </td>
+                <td className="border p-3">{plan.isPublic ? "Public" : "Private"}</td>
                 <td className="border p-3 flex gap-2">
                   <button
                     onClick={() => handleEdit(plan)}
@@ -255,6 +278,25 @@ const toInputDate = (dateString: string) => {
               {editingPlanId ? "Edit Travel Plan" : "Add Travel Plan"}
             </h2>
 
+            {/* Image Section */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-1">Travel Plan Image URL</label>
+              <input
+                type="text"
+                className="input w-full"
+                placeholder="https://example.com/image.jpg"
+                value={formData.image}
+                onChange={e => setFormData({ ...formData, image: e.target.value })}
+              />
+              {formData.image && (
+                <img
+                  src={formData.image}
+                  alt="Preview"
+                  className="mt-2 h-32 w-full object-cover rounded"
+                />
+              )}
+            </div>
+
             <div className="grid grid-cols-2 gap-3">
               <input
                 placeholder="City"
@@ -266,46 +308,36 @@ const toInputDate = (dateString: string) => {
                 placeholder="Country"
                 className="input"
                 value={formData.country}
-                onChange={e =>
-                  setFormData({ ...formData, country: e.target.value })
-                }
+                onChange={e => setFormData({ ...formData, country: e.target.value })}
               />
-     <input
-  type="date"
-  className="input"
-  value={toInputDate(formData.startDate)}
-  onChange={e =>
-    setFormData({ ...formData, startDate: e.target.value })
-  }
-/>
-<input
-  type="date"
-  className="input"
-  value={toInputDate(formData.endDate)}
-  onChange={e =>
-    setFormData({ ...formData, endDate: e.target.value })
-  }
-/>
+              <input
+                type="date"
+                className="input"
+                value={toInputDate(formData.startDate)}
+                onChange={e => setFormData({ ...formData, startDate: e.target.value })}
+              />
+              <input
+                type="date"
+                className="input"
+                value={toInputDate(formData.endDate)}
+                onChange={e => setFormData({ ...formData, endDate: e.target.value })}
+              />
               <input
                 placeholder="Min Budget"
                 className="input"
                 value={formData.minBudget}
-                onChange={e =>
-                  setFormData({ ...formData, minBudget: e.target.value })
-                }
+                onChange={e => setFormData({ ...formData, minBudget: e.target.value })}
               />
               <input
                 placeholder="Max Budget"
                 className="input"
                 value={formData.maxBudget}
-                onChange={e =>
-                  setFormData({ ...formData, maxBudget: e.target.value })
-                }
+                onChange={e => setFormData({ ...formData, maxBudget: e.target.value })}
               />
             </div>
 
             <select
-              className="input w-full"
+              className="input w-full mt-2"
               value={formData.travelType}
               onChange={e =>
                 setFormData({ ...formData, travelType: e.target.value as TravelType })
@@ -318,7 +350,7 @@ const toInputDate = (dateString: string) => {
 
             <textarea
               placeholder="Description"
-              className="input w-full"
+              className="input w-full mt-2"
               value={formData.description}
               onChange={e => setFormData({ ...formData, description: e.target.value })}
             />

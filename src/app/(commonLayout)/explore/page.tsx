@@ -175,63 +175,78 @@ export default function ExplorePage() {
       <h2 className="text-xl font-bold mb-4">Featured Trips</h2>
       <p className="mb-4">{filteredTrips.length} trips found</p>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {filteredTrips.map((trip) => {
-          const rating = ratingsMap[trip._id]?.avg || 0;
-          const reviewCount = ratingsMap[trip._id]?.count || 0;
-          const creator = trip.user?.name || { name: "Unknown", picture: DEFAULT_IMAGE };
-console.log(trip);
-          return (
-            <div
-              key={trip._id}
-              className="border rounded-lg p-4 shadow hover:shadow-lg transition flex flex-col gap-2"
-            >
-              {/* Creator */}
-          <div className="flex items-center gap-2 mb-2">
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+  {filteredTrips.map((trip) => {
+    const rating = ratingsMap[trip._id]?.avg || 0;
+    const reviewCount = ratingsMap[trip._id]?.count || 0;
+    const creator = trip.user?.name || "Unknown";
+
+    // Trip image fallback
+    const tripImage = (trip as any).image || "https://i.ibb.co/SxP3NYv/pexels-liza-summer-6347919.jpg";
+
+    return (
+      <div
+        key={trip._id}
+        className="border rounded-lg shadow hover:shadow-lg transition flex flex-col gap-2"
+      >
+        {/* Trip Image */}
+        <div className="h-48 w-full overflow-hidden rounded-t-lg">
+          <img
+            src={tripImage}
+            alt={`${trip.destination?.city} Image`}
+            className="w-full h-full object-cover"
+          />
+        </div>
+
+        {/* Creator */}
+        <div className="flex items-center gap-2 p-2">
           <Link href={`/allUser/${trip.user?._id}`} className="flex items-center gap-2">
             <img
               src={trip.user?.picture || DEFAULT_IMAGE}
-              alt={trip.user?.name || "User"}
+              alt={creator}
               className="w-8 h-8 rounded-full object-cover"
             />
-            <span className="text-sm font-medium">{trip.user?.name || "Unknown"}</span>
+            <span className="text-sm font-medium">{creator}</span>
           </Link>
         </div>
 
-              <h3 className="font-bold text-lg">
-                {trip.destination?.city ?? "Unknown"}, {trip.destination?.country ?? "Unknown"}
-              </h3>
+        <div className="p-2 flex flex-col gap-1">
+          <h3 className="font-bold text-lg">
+            {trip.destination?.city ?? "Unknown"}, {trip.destination?.country ?? "Unknown"}
+          </h3>
 
-              <div className="flex items-center gap-2 text-gray-500 text-sm">
-                <Calendar className="w-4 h-4" />
-                <span>
-                  {trip.startDate ? new Date(trip.startDate).toLocaleDateString() : "N/A"} -{" "}
-                  {trip.endDate ? new Date(trip.endDate).toLocaleDateString() : "N/A"}
-                </span>
-                <span className="ml-auto font-semibold text-primary">{trip.travelType ?? "N/A"}</span>
-              </div>
+          <div className="flex items-center gap-2 text-gray-500 text-sm">
+            <Calendar className="w-4 h-4" />
+            <span>
+              {trip.startDate ? new Date(trip.startDate).toLocaleDateString() : "N/A"} -{" "}
+              {trip.endDate ? new Date(trip.endDate).toLocaleDateString() : "N/A"}
+            </span>
+            <span className="ml-auto font-semibold text-primary">{trip.travelType ?? "N/A"}</span>
+          </div>
 
-              <p className="text-gray-600 text-sm">{trip.description ?? ""}</p>
-              <span className="text-sm font-medium text-gray-700">
-                Budget: {trip.budgetRange?.min ?? 0} - {trip.budgetRange?.max ?? 0} USD
-              </span>
+          <p className="text-gray-600 text-sm">{trip.description ?? ""}</p>
+          <span className="text-sm font-medium text-gray-700">
+            Budget: {trip.budgetRange?.min ?? 0} - {trip.budgetRange?.max ?? 0} USD
+          </span>
 
-              {/* Rating */}
-              <div className="flex items-center gap-2 mt-1">
-                <StarRating rating={rating} />
-                <span className="text-gray-500 text-sm">({reviewCount})</span>
-              </div>
+          {/* Rating */}
+          <div className="flex items-center gap-2 mt-1">
+            <StarRating rating={rating} />
+            <span className="text-gray-500 text-sm">({reviewCount})</span>
+          </div>
 
-              <Link
-                href={`/explore/${trip._id}`}
-                className="text-primary font-medium hover:underline mt-2"
-              >
-                View Details →
-              </Link>
-            </div>
-          );
-        })}
+          <Link
+            href={`/explore/${trip._id}`}
+            className="text-primary font-medium hover:underline mt-2"
+          >
+            View Details →
+          </Link>
+        </div>
       </div>
+    );
+  })}
+</div>
+
     </div>
   );
 }

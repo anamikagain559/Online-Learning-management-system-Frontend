@@ -32,6 +32,7 @@ interface FormState {
   travelType: TravelType;
   isPublic: boolean;
   description: string;
+  image: string; // ✅ added image field
 }
 
 export default function UserTravelPlansPage() {
@@ -50,6 +51,7 @@ export default function UserTravelPlansPage() {
     travelType: "SOLO",
     isPublic: true,
     description: "",
+    image: "",
   });
 
   const fetchPlans = async () => {
@@ -116,6 +118,7 @@ export default function UserTravelPlansPage() {
       travelType: formData.travelType,
       isPublic: formData.isPublic,
       description: formData.description,
+      image: formData.image, // ✅ include image in payload
     };
 
     let res;
@@ -143,6 +146,7 @@ export default function UserTravelPlansPage() {
         travelType: "SOLO",
         isPublic: true,
         description: "",
+        image: "",
       });
       fetchPlans();
     } else {
@@ -151,23 +155,24 @@ export default function UserTravelPlansPage() {
   };
 
   // ✏️ Start editing
-const handleEdit = (plan: ITravelPlan) => {
-  setEditingId(plan._id);
+  const handleEdit = (plan: ITravelPlan) => {
+    setEditingId(plan._id);
 
-  setFormData({
-    city: plan.destination.city,
-    country: plan.destination.country,
-    startDate: plan.startDate || "",             // fallback empty string
-    endDate: plan.endDate || "",                 // fallback empty string
-    minBudget: plan.budgetRange.min?.toString() || "0", // fallback "0"
-    maxBudget: plan.budgetRange.max?.toString() || "0", // fallback "0"
-    travelType: plan.travelType || "SOLO",      // fallback default
-    isPublic: plan.isPublic ?? true,            // fallback true
-    description: plan.description || "",        // fallback empty string
-  });
+    setFormData({
+      city: plan.destination.city,
+      country: plan.destination.country,
+      startDate: plan.startDate || "",
+      endDate: plan.endDate || "",
+      minBudget: plan.budgetRange.min?.toString() || "0",
+      maxBudget: plan.budgetRange.max?.toString() || "0",
+      travelType: plan.travelType || "SOLO",
+      isPublic: plan.isPublic ?? true,
+      description: plan.description || "",
+      image: (plan as any).image || "", // ✅ include image for editing
+    });
 
-  setOpen(true);
-};
+    setOpen(true);
+  };
 
   if (loading) return <p className="text-center mt-10">Loading...</p>;
 
@@ -189,6 +194,7 @@ const handleEdit = (plan: ITravelPlan) => {
         <table className="w-full border">
           <thead className="bg-gray-100">
             <tr>
+              <th className="border p-2">Image</th> {/* ✅ new column */}
               <th className="border p-2">Destination</th>
               <th className="border p-2">Type</th>
               <th className="border p-2">Budget</th>
@@ -201,29 +207,24 @@ const handleEdit = (plan: ITravelPlan) => {
             {plans.map(plan => (
               <tr key={plan._id}>
                 <td className="border p-2">
-                  {plan.destination.city}, {plan.destination.country}
+                  {plan.image ? (
+                    <img
+                      src={plan.image}
+                      alt="Travel"
+                      className="h-16 w-24 object-cover rounded"
+                    />
+                  ) : "N/A"}
                 </td>
+                <td className="border p-2">{plan.destination.city}, {plan.destination.country}</td>
                 <td className="border p-2">{plan.travelType}</td>
                 <td className="border p-2">
                   ${plan.budgetRange.min} – ${plan.budgetRange.max}
                 </td>
-                <td className="border p-2">
-                  {formatDate(plan.startDate)} → {formatDate(plan.endDate)}
-                </td>
+                <td className="border p-2">{formatDate(plan.startDate)} → {formatDate(plan.endDate)}</td>
                 <td className="border p-2">{plan.isPublic ? "Public" : "Private"}</td>
                 <td className="border p-2 flex gap-2">
-                  <button
-                    onClick={() => handleEdit(plan)}
-                    className="text-blue-600"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(plan._id)}
-                    className="text-red-600"
-                  >
-                    Delete
-                  </button>
+                  <button onClick={() => handleEdit(plan)} className="text-blue-600">Edit</button>
+                  <button onClick={() => handleDelete(plan._id)} className="text-red-600">Delete</button>
                 </td>
               </tr>
             ))}
@@ -233,11 +234,29 @@ const handleEdit = (plan: ITravelPlan) => {
 
       {/* Modal */}
       {open && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white w-full max-w-lg p-6 rounded space-y-3">
             <h2 className="text-xl font-bold">
               {editingId ? "Edit Travel Plan" : "Add Travel Plan"}
             </h2>
+
+            {/* Image input */}
+            <div className="mb-2">
+              <input
+                type="text"
+                className="input w-full"
+                placeholder="Image URL"
+                value={formData.image}
+                onChange={e => setFormData({ ...formData, image: e.target.value })}
+              />
+              {formData.image && (
+                <img
+                  src={formData.image}
+                  alt="Preview"
+                  className="mt-2 h-32 w-full object-cover rounded"
+                />
+              )}
+            </div>
 
             <input
               placeholder="City"
