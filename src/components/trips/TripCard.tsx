@@ -1,88 +1,139 @@
+"use client";
+
 import Link from "next/link";
-import Image from "next/image";
-import { Calendar, ArrowRight } from "lucide-react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ITravelPlan } from "@/types/travelPlan.interface";
+import { motion } from "framer-motion";
+import { Calendar } from "lucide-react";
+import StarRating from "@/components/StarRating";
+const DEFAULT_IMAGE =
+  "https://i.ibb.co/SxP3NYv/pexels-liza-summer-6347919.jpg";
 
-// Default creator image if none provided
-const DEFAULT_CREATOR_IMAGE = "https://i.ibb.co/SxP3NYv/pexels-liza-summer-6347919.jpg";
-
-interface TripCardProps {
-  trip: ITravelPlan;
+interface Trip {
+  _id: string;
+  image?: string;
+  destination?: { city?: string; country?: string };
+  user?: { _id?: string; name?: string; picture?: string };
+  creatorType?: "Solo" | "Family" | "Any"; // Trip type
+  travelType?: string; // e.g., Adventure / Relaxing
+  startDate?: string;
+  endDate?: string;
+  description?: string;
+  budgetRange?: { min?: number; max?: number };
+  rating?: number;
+  reviewCount?: number;
 }
 
-export function TripCard({ trip }: TripCardProps) {
-  const formatDate = (date?: string) =>
-    date
-      ? new Date(date).toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-        })
-      : "N/A";
+interface TripCardProps {
+  trip: Trip;
+}
+
+export default function TripCard({ trip }: TripCardProps) {
+  const tripImage = trip.image || "/placeholder-trip.jpg";
+  const creator = trip.user?.name || "Unknown";
+  const rating = trip.rating ?? 0;
+  const reviewCount = trip.reviewCount ?? 0;
 
   return (
-    <Card className="h-full flex flex-col rounded-xl border hover:shadow-md transition">
-      {/* Image */}
-      <div className="relative h-48 w-full bg-gray-200 rounded-t-xl overflow-hidden">
-        {trip.image ? (
-          <img
-            src={trip?.image}
-            alt="Travel"
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <div className="w-full h-full bg-gray-300 flex items-center justify-center text-gray-500">
-            No Image
-          </div>
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      whileHover={{ y: -5, boxShadow: "0 10px 20px rgba(0,0,0,0.12)" }}
+      className="border rounded-lg shadow transition flex flex-col gap-2 bg-white"
+    >
+      {/* Trip Image */}
+      <div className="relative h-48 w-full overflow-hidden rounded-t-lg">
+        <img
+          src={tripImage}
+          alt={`${trip.destination?.city ?? "Trip"} Image`}
+          className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+        />
+
+        {/* Dark overlay to make badges visible */}
+        <div className="absolute inset-0 bg-black/20" />
+
+        {/* Top-left: Creator Type + Creator Info */}
+        <div className="absolute top-3 left-3 flex flex-col gap-1">
+          {/* Trip Type Badge */}
+          {trip.creatorType && (
+            <span className="bg-primary text-white text-xs font-semibold px-2 py-1 rounded-full shadow-md">
+              {trip.creatorType}
+            </span>
+          )}
+
+          {/* Creator Info */}
+          {trip.user && (
+            <Link
+              href={`/allUser/${trip.user._id}`}
+              className="flex items-center gap-2 bg-white/80 backdrop-blur-sm px-2 py-1 rounded-full shadow-md"
+            >
+              <img
+                src={trip.user.picture || DEFAULT_IMAGE}
+                alt={creator}
+                className="w-6 h-6 rounded-full object-cover"
+              />
+              <span className="text-xs font-medium text-gray-800">{creator}</span>
+            </Link>
+          )}
+        </div>
+
+        {/* Top-right: Travel Type Badge */}
+        {trip.travelType && (
+          <span className="absolute top-3 right-3 bg-black/70 text-white text-xs font-semibold px-2 py-1 rounded-full shadow-md">
+            {trip.travelType}
+          </span>
         )}
       </div>
 
-      {/* Creator Info */}
-      <div className="flex items-center gap-2 mt-3 px-5">
-        <Link href={`/allUser/${trip.user?._id || ""}`} className="flex items-center gap-2">
-       
-          <img
-  src={trip.user?.picture || DEFAULT_CREATOR_IMAGE}
-  alt={trip.user?.name || "Creator"}  width={32}
-            height={32}
-     className="rounded-full object-cover"
-/>
-          <span className="text-sm font-medium">{trip.user?.name || "Unknown"}</span>
-        </Link>
-      </div>
-
       {/* Trip Details */}
-      <div className="p-5 flex flex-col flex-1">
-        {/* Title */}
-        <h3 className="text-lg font-bold line-clamp-1">
-          {trip.destination.city}, {trip.destination.country}
+      <div className="px-3 pb-3 flex flex-col gap-1">
+        <h3 className="font-bold text-lg">
+          {trip.destination?.city ?? "Unknown"}, {trip.destination?.country ?? "Unknown"}
         </h3>
 
-        {/* Dates */}
-        <div className="flex items-center text-sm text-gray-500 mt-2">
-          <Calendar className="h-4 w-4 mr-1" />
-          {formatDate(trip.startDate)} – {formatDate(trip.endDate)}
-        </div>
-
-        {/* Description */}
-        <p className="text-sm text-gray-600 mt-3 line-clamp-2 flex-1">
-          {trip.description}
-        </p>
-
-        {/* Footer */}
-        <div className="flex items-center justify-between mt-4 pt-3 border-t">
-          <span className="text-sm font-medium text-blue-600">
-            {trip.travelType}
+        <div className="flex items-center gap-2 text-gray-500 text-sm">
+          <Calendar className="w-4 h-4" />
+          <span>
+            {trip.startDate
+              ? new Date(trip.startDate).toLocaleDateString("en-GB", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                })
+              : "N/A"}{" "}
+            -{" "}
+            {trip.endDate
+              ? new Date(trip.endDate).toLocaleDateString("en-GB", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                })
+              : "N/A"}
           </span>
-
-          <Link href={`/explore/${trip._id}`}>
-            <Button variant="ghost" size="sm">
-              View Details <ArrowRight className="ml-1 h-4 w-4" />
-            </Button>
-          </Link>
         </div>
+
+        {trip.description && (
+          <p className="text-gray-600 text-sm line-clamp-2">{trip.description}</p>
+        )}
+
+        {trip.budgetRange && (
+          <span className="text-sm font-medium text-gray-700">
+            Budget: {trip.budgetRange.min ?? 0} - {trip.budgetRange.max ?? 0} USD
+          </span>
+        )}
+
+        {/* Rating */}
+        <div className="flex items-center gap-2 mt-1">
+          <StarRating rating={rating} />
+          <span className="text-gray-500 text-sm">({reviewCount})</span>
+        </div>
+
+        <Link
+          href={`/explore/${trip._id}`}
+          className="text-primary font-medium hover:underline mt-2"
+        >
+          View Details →
+        </Link>
       </div>
-    </Card>
+    </motion.div>
   );
 }
