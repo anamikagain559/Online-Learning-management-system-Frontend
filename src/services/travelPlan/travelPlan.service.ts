@@ -26,23 +26,24 @@ export async function getAllTravelPlans(queryString?: string) {
     };
   }
 }
-export async function getMatchedTravelPlans(query: {
+export async function getMatchedTravelPlans(query?: {
   destination?: string;
   startDate?: string;
   endDate?: string;
   travelType?: string;
 }) {
   try {
+    // Build query string
     const params = new URLSearchParams();
+    if (query?.destination) params.append("destination", query.destination);
+    if (query?.startDate) params.append("startDate", query.startDate);
+    if (query?.endDate) params.append("endDate", query.endDate);
+    if (query?.travelType) params.append("travelType", query.travelType);
 
-    if (query.destination) params.append("destination", query.destination);
-    if (query.startDate) params.append("startDate", query.startDate);
-    if (query.endDate) params.append("endDate", query.endDate);
-    if (query.travelType) params.append("travelType", query.travelType);
-
-    const response = await fetch(`/travel-plans/match?${params.toString()}`, {
-      credentials: "include"
-    });
+    const queryString = params.toString();
+    const response = await serverFetch.get(
+      `/travel-plans/match${queryString ? `?${queryString}` : ""}`
+    );
 
     return await response.json();
   } catch (error: any) {
@@ -50,10 +51,14 @@ export async function getMatchedTravelPlans(query: {
     return {
       success: false,
       data: [],
-      message: error.message || "Failed to fetch matched travel plans"
+      message:
+        process.env.NODE_ENV === "development"
+          ? error.message
+          : "Failed to fetch matched travel plans",
     };
   }
 }
+
 export async function createTravelPlan(data: ITravelPlanFormData) {
   try {
     const response = await serverFetch.post("/travel-plans", {

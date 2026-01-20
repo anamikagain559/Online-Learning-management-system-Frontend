@@ -1,117 +1,90 @@
-"use client";
 
+import { getCookie } from "@/services/auth/tokenHandlers";
 import { Menu } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-
-import {
-  Sheet,
-  SheetContent,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import LogoutButton from "./shared/LogoutButton";
-import { motion } from "framer-motion";
+import { getUserInfo } from "@/services/auth/getUserInfo";
+export default async function Navbar() {
+const userInfo = await getUserInfo();
 
-export default function NavbarClient({
-  userInfo,
-  accessToken,
-}: {
-  userInfo: never;
-  accessToken: string | undefined;
-}) {
-  const navItems = [
-    { href: "/", label: "Home" },
-    { href: "/explore", label: "Explore Travelers" },
+const navItems = [
+  { href: "/", label: "Home" },
+  { href: "/explore", label: "Explore Travelers" },
     { href: "/match", label: "Match" },
-    { href: "/subscription", label: "Subscription" },
+  { href: "/subscription", label: "Subscription" },
     { href: "/allUser", label: "All User" },
-    { href: "/about", label: "About" },
-    { href: "/contact", label: "Contact" },
-    ...(userInfo ? [{ href: "/dashboard", label: "Dashboard" }] : []),
-  ];
+  { href: "/about", label: "About" },
+  { href: "/contact", label: "Contact" },
+  // Only show dashboard if userInfo exists
+  ...(userInfo ? [{ href: "/dashboard", label: "Dashboard" }] : []),
+];
 
+  const accessToken = await getCookie("accessToken");
   return (
-    <motion.header
-      initial={{ y: -60, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
-      className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur"
-    >
+
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur  dark:bg-background/95">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        {/* Logo */}
         <Link href="/" className="flex items-center space-x-2">
-          <span className="text-xl font-bold text-primary">
-            TravelBuddy
-          </span>
+          <span className="text-xl font-bold text-primary">  TravelBuddy</span>
         </Link>
 
-        {/* Desktop Nav */}
         <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
           {navItems.map((link) => (
-            <motion.div
+            <Link
               key={link.label}
-              whileHover={{ y: -2 }}
-              transition={{ type: "spring", stiffness: 300 }}
+              href={link.href}
+              className="text-foreground hover:text-primary transition-colors"
             >
-              <Link
-                href={link.href}
-                className="relative text-foreground hover:text-primary transition-colors after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-0 after:bg-primary after:transition-all hover:after:w-full"
-              >
-                {link.label}
-              </Link>
-            </motion.div>
+              {link.label}
+            </Link>
           ))}
         </nav>
 
-        {/* Desktop Auth */}
         <div className="hidden md:flex items-center space-x-2">
           {accessToken ? (
             <LogoutButton />
           ) : (
             <Link href="/login">
-              <Button className="rounded-xl">Login</Button>
+              <Button>Login</Button>
             </Link>
           )}
         </div>
 
         {/* Mobile Menu */}
+
         <div className="md:hidden">
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="outline">
-                <Menu />
+                {" "}
+                <Menu />{" "}
               </Button>
             </SheetTrigger>
-
-            <SheetContent side="right" className="w-[300px] p-4">
-              <SheetTitle className="sr-only">Navigation</SheetTitle>
-
-              <nav className="flex flex-col space-y-5 mt-8">
+            <SheetContent side="right" className="w-[300px] sm:w-[400px] p-4">
+              <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+              <nav className="flex flex-col space-y-4 mt-8">
                 {navItems.map((link) => (
                   <Link
                     key={link.label}
                     href={link.href}
-                    className="text-lg font-medium hover:text-primary transition"
+                    className="text-lg font-medium"
                   >
                     {link.label}
                   </Link>
                 ))}
-
-                <div className="border-t pt-4">
-                  {accessToken ? (
-                    <LogoutButton />
-                  ) : (
-                    <Link href="/login">
-                      <Button className="w-full">Login</Button>
-                    </Link>
-                  )}
+                <div className="border-t pt-4 flex flex-col space-y-4">
+                  <div className="flex justify-center"></div>
+                  <Link href="/login" className="text-lg font-medium">
+                    <Button>Login</Button>
+                  </Link>
                 </div>
               </nav>
             </SheetContent>
           </Sheet>
         </div>
       </div>
-    </motion.header>
+    </header>
   );
 }

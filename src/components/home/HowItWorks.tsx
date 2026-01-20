@@ -38,14 +38,16 @@ const cardVariants = {
   show: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.5, ease: "easeOut" },
+    transition: {
+      duration: 0.5,
+      ease: [0.16, 1, 0.3, 1], // ✅ fixed
+    },
   },
 };
 
 export default function HowItWorks() {
   return (
     <section className="bg-gradient-to-b from-white to-gray-50 pt-6 pb-20">
-      {/* Heading */}
       <motion.h2
         initial={{ opacity: 0, y: -16 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -56,7 +58,6 @@ export default function HowItWorks() {
         How It Works
       </motion.h2>
 
-      {/* Steps */}
       <motion.div
         variants={containerVariants}
         initial="hidden"
@@ -70,26 +71,21 @@ export default function HowItWorks() {
           return (
             <motion.div
               key={index}
-              variants={cardVariants}
               whileHover={{ y: -6 }}
               className="group rounded-2xl border bg-white p-8 shadow-sm transition-all hover:shadow-lg"
             >
-              {/* Icon */}
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
                 <Icon className="h-7 w-7" />
               </div>
 
-              {/* Step */}
               <p className="mt-4 text-center text-xs font-semibold tracking-wide text-primary">
                 STEP {item.step}
               </p>
 
-              {/* Title */}
               <h3 className="mt-2 text-center text-xl font-semibold">
                 {item.title}
               </h3>
 
-              {/* Description */}
               <p className="mt-2 text-center text-sm text-muted-foreground leading-relaxed">
                 {item.desc}
               </p>

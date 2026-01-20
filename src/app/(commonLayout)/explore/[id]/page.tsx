@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Calendar, Trash2, Edit2 } from "lucide-react";
 import Swal from "sweetalert2";
+import { motion } from "framer-motion";
 
 import { getPublicTravelPlans } from "@/services/travelPlan/travelPlan.service";
 import {
@@ -134,10 +135,8 @@ export default function ExploreDetailPage() {
 
       let res;
       if (editingId) {
-        // Update existing review
         res = await updateReview(editingId, { rating: reviewRating, comment });
       } else {
-        // Create new review
         res = await createReview({
           travelPlan: id,
           rating: reviewRating,
@@ -154,7 +153,6 @@ export default function ExploreDetailPage() {
         return;
       }
 
-      // Update UI
       const updatedReview = res.data;
       let newReviews;
       if (editingId) {
@@ -235,55 +233,89 @@ export default function ExploreDetailPage() {
   };
 
   /* -------- UI States -------- */
-  if (loading) return <p className="text-center mt-8">Loading...</p>;
+  if (loading)
+    return <p className="text-center mt-8 text-gray-500">Loading...</p>;
   if (error) return <p className="text-center mt-8 text-red-500">{error}</p>;
   if (!trip) return null;
 
   return (
     <div className="container mx-auto p-4 max-w-3xl">
-      <h1 className="text-2xl font-bold mb-2">
-        {trip.destination.city}, {trip.destination.country}
-      </h1>
+      {/* Main Image */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
+        className="mb-6 rounded-lg overflow-hidden shadow-lg"
+      >
+        <img
+          src={trip.image || DEFAULT_IMAGE}
+          alt={`${trip.destination.city} image`}
+          className="w-full h-64 object-cover"
+        />
+      </motion.div>
 
-      <div className="flex items-center gap-4 text-gray-500 text-sm mb-2">
-        <Calendar className="w-4 h-4" />
-        <span>
-          {new Date(trip.startDate).toLocaleDateString()} –{" "}
-          {new Date(trip.endDate).toLocaleDateString()}
-        </span>
-        <span className="ml-auto font-semibold">{trip.travelType}</span>
-      </div>
+      {/* Trip Info */}
+      <motion.div
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6 }}
+      >
+        <h1 className="text-3xl font-bold mb-2">
+          {trip.destination.city}, {trip.destination.country}
+        </h1>
 
-      <p className="text-gray-700 mb-2">{trip.description}</p>
-      <p className="text-gray-700 mb-4">
-        Budget: {trip.budgetRange.min} – {trip.budgetRange.max} USD
-      </p>
+        <div className="flex items-center gap-4 text-gray-500 text-sm mb-2">
+          <Calendar className="w-4 h-4" />
+          <span>
+            {new Date(trip.startDate).toLocaleDateString()} –{" "}
+            {new Date(trip.endDate).toLocaleDateString()}
+          </span>
+          <span className="ml-auto font-semibold">{trip.travelType}</span>
+        </div>
 
-      {/* Rating Summary */}
-      <div className="flex items-center gap-2 mb-6">
-        <StarRating rating={rating} />
-        <span className="text-gray-500">({reviewCount} reviews)</span>
-      </div>
+        <p className="text-gray-700 mb-2">{trip.description}</p>
+        <p className="text-gray-700 mb-4">
+          Budget: {trip.budgetRange.min} – {trip.budgetRange.max} USD
+        </p>
+
+        {/* Rating Summary */}
+        <div className="flex items-center gap-2 mb-6">
+          <StarRating rating={rating} />
+          <span className="text-gray-500">({reviewCount} reviews)</span>
+        </div>
+      </motion.div>
 
       {/* Reviews List */}
-      <div className="space-y-4 mb-8">
-        {reviews.length === 0 && <p className="text-gray-500">No reviews yet</p>}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ staggerChildren: 0.1, duration: 0.6 }}
+        className="space-y-4 mb-8"
+      >
+        {reviews.length === 0 && (
+          <p className="text-gray-500">No reviews yet</p>
+        )}
 
         {reviews.map((r) => (
-          <div key={r._id} className="border rounded-lg p-4 bg-gray-50 relative">
+          <motion.div
+            key={r._id}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="border rounded-lg p-4 bg-gray-50 relative"
+          >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <img
                   src={r.reviewer?.picture || DEFAULT_IMAGE}
                   alt={r.reviewer?.name || "Anonymous"}
-                  className="w-8 h-8 rounded-full object-cover"
+                  className="w-10 h-10 rounded-full object-cover"
                 />
                 <strong>{r.reviewer?.name || "Anonymous"}</strong>
               </div>
 
               <div className="flex items-center gap-2">
                 <StarRating rating={r.rating} />
-                {/* Edit/Delete if reviewer matches current user */}
                 {r.isCurrentUser && (
                   <>
                     <button
@@ -307,12 +339,17 @@ export default function ExploreDetailPage() {
             <p className="text-xs text-gray-400 mt-1">
               {new Date(r.createdAt).toLocaleDateString()}
             </p>
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       {/* Add / Edit Review */}
-      <div className="border-t pt-6">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="border-t pt-6"
+      >
         <h2 className="text-lg font-semibold mb-2">
           {editingId ? "Edit Your Review" : "Write a Review"}
         </h2>
@@ -330,11 +367,11 @@ export default function ExploreDetailPage() {
         <button
           onClick={handleSubmitReview}
           disabled={submitting}
-          className="mt-3 bg-black text-white px-6 py-2 rounded-lg disabled:opacity-50"
+          className="mt-3 bg-black text-white px-6 py-2 rounded-lg disabled:opacity-50 hover:bg-gray-800 transition"
         >
           {submitting ? "Submitting..." : editingId ? "Update Review" : "Submit Review"}
         </button>
-      </div>
+      </motion.div>
     </div>
   );
 }

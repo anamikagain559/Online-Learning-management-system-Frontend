@@ -9,9 +9,22 @@ import  TripCard  from "@/components/trips/TripCard";
 import { ITravelPlan } from "@/types/travelPlan.interface";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-
+interface Trip {
+  _id: string;
+  image?: string;
+  destination?: { city?: string; country?: string };
+  user?: { _id?: string; name?: string; picture?: string };
+  creatorType?: "Solo" | "Family" | "Any"; // Trip type
+  travelType?: string; // e.g., Adventure / Relaxing
+  startDate?: string;
+  endDate?: string;
+  description?: string;
+  budgetRange?: { min?: number; max?: number };
+  rating?: number;
+  reviewCount?: number;
+}
 export default function ExplorePreview() {
-  const [trips, setTrips] = useState<ITravelPlan[]>([]);
+  const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

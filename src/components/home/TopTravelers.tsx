@@ -65,7 +65,6 @@ export default function TopTravelers() {
         {travelers.map((t, i) => (
           <motion.div
             key={i}
-            variants={card}
             whileHover={{ y: -8 }}
             className="group rounded-2xl bg-white p-6 shadow-md transition-all hover:shadow-2xl"
           >
