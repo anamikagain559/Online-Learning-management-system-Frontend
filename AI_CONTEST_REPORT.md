@@ -29,26 +29,9 @@ I improved the **home page design** of the website using AI. Specific improvemen
 
 ---
 
-## 3. AI-Powered Feature Implemented
 
-**Feature:** AI Chat Assistant  
 
-**Description:**  
-- Users can interact with a chatbot integrated into the website  
-- The chatbot provides helpful responses about website content and FAQs  
-- Backend API calls OpenAI GPT securely to generate answers  
-
-**Implementation Details:**  
-- Created a backend API route in Node.js to handle AI requests  
-- Used `axios` to communicate with OpenAI API  
-- Frontend fetches responses and displays them dynamically in the chat interface  
-
-*Example prompt sent to AI:*  
-> "Answer user questions about our website content clearly and concisely."
-
----
-
-## 4. Project Structure Updates
+## 3. Project Structure Updates
 
 - **Updated UI Layout:** Home page sections reorganized  
 - **New Components:** Client review cards, animated feature cards, AI chat component  
