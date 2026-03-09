@@ -5,16 +5,18 @@ import WhyChooseUs from "@/components/home/WhyChooseUs";
 import TopTravelers from "@/components/home/TopTravelers";
 import CTA from "@/components/home/CTA";
 import ExplorePreview from "@/components/home/ExplorePreview";
+import Testimonials from "@/components/home/Testimonials";
 export default function HomePage() {
   return (
-    <main className="space-y-24">
+    <main className="space-y-12">
       <Hero />
       <HowItWorks />
-       <ExplorePreview />
+      <ExplorePreview />
       <Destinations />
       <WhyChooseUs />
       <TopTravelers />
       <CTA />
+      <Testimonials />
     </main>
   );
 }
