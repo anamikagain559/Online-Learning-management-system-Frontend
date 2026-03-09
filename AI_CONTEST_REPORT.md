@@ -1,7 +1,5 @@
 # AI Project Enhancement Contest Report
 
-**Project Name:** *[Your Project Name]*  
-
 ## 1. AI Tools Used
 
 **UI Design Tools:**  
@@ -58,15 +56,6 @@ I improved the **home page design** of the website using AI. Specific improvemen
 
 ---
 
-## 5. Submission Details
-
-- **GitHub Repository:** [Your GitHub Repo Link]  
-- **Demo Video:** [Video Link Showing UI Improvements & AI Feature]  
-- **Credentials for Testing:**  
-  - **Admin:** admin@example.com / password123  
-  - **User:** user@example.com / password123  
-
----
 
 **Summary:**  
 Using AI, the home page design was enhanced, new sections were added, UX was improved, and an AI-powered chat assistant was implemented, making the website more modern, interactive, and user-friendly.
