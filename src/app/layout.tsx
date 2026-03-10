@@ -1,4 +1,6 @@
 import "./globals.css";
+import { SocketProvider } from "@/providers/SocketProvider";
+import { ChatWindow } from "@/components/shared/ChatWindow";
 
 export const metadata = {
   title: "Travel Buddy & Meetup",
@@ -12,7 +14,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className="antialiased">
+        <SocketProvider>
+          {children}
+          <ChatWindow />
+        </SocketProvider>
+      </body>
     </html>
   );
 }

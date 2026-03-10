@@ -18,6 +18,7 @@ export interface IAuthProvider {
 
 export interface IUser {
   id: string; // frontend-friendly (string, not ObjectId)
+  _id?: string; // MongoDB ID property
   name: string;
   email: string;
   phone?: string;

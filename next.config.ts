@@ -5,7 +5,27 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',
-        pathname: '**', // Allows all paths from this host
+        pathname: '**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'i.ibb.co.com',
+        pathname: '**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'ibb.co.com',
+        pathname: '**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'i.ibb.co',
+        pathname: '**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'ibb.co',
+        pathname: '**',
       },
     ],
   },

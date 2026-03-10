@@ -12,7 +12,7 @@ export const getCommonNavItems = (role: UserRole): NavSection[] => {
                     title: "Dashboard",
                     href: defaultDashboard,
                     icon: "LayoutDashboard",
-                    roles: [ "USER", "ADMIN"],
+                    roles: ["USER", "ADMIN"],
                 },
                 {
                     title: "My Profile",
@@ -20,7 +20,7 @@ export const getCommonNavItems = (role: UserRole): NavSection[] => {
                     icon: "User",
                     roles: ["USER", "ADMIN"],
                 },
-           
+
 
             ]
         },
@@ -31,7 +31,7 @@ export const getCommonNavItems = (role: UserRole): NavSection[] => {
                     title: "Change Password",
                     href: "/change-password",
                     icon: "Settings", // ✅ String
-                    roles: ["USER","ADMIN"],
+                    roles: ["USER", "ADMIN"],
                 },
             ],
         },
@@ -41,22 +41,22 @@ export const getCommonNavItems = (role: UserRole): NavSection[] => {
 
 
 export const userNavItems: NavSection[] = [
- 
-        {
-            items: [
-               
-                   {
+
+    {
+        items: [
+
+            {
                 title: "Travel Plans",
                 href: "/dashboard/travel-plans",
                 icon: "Users", // ✅ String
                 roles: ["USER"],
             },
 
-            ]
-        },
-        
-    
-  
+        ]
+    },
+
+
+
 
 ]
 
@@ -64,22 +64,26 @@ export const adminNavItems: NavSection[] = [
     {
         title: "User Management",
         items: [
-           
             {
                 title: "Users",
                 href: "/admin/dashboard/user-management",
                 icon: "Users", // ✅ String
                 roles: ["ADMIN"],
             },
-             {
+            {
                 title: "Travel Plans",
                 href: "/admin/dashboard/travel-plans",
-                icon: "Users", // ✅ String
+                icon: "Map", // Improved icon
+                roles: ["ADMIN"],
+            },
+            {
+                title: "Join Requests",
+                href: "/admin/dashboard/buddy-requests",
+                icon: "UserPlus",
                 roles: ["ADMIN"],
             },
         ],
     },
-   
 ]
 
 export const getNavItemsByRole = (role: UserRole): NavSection[] => {
@@ -90,7 +94,7 @@ export const getNavItemsByRole = (role: UserRole): NavSection[] => {
             return [...commonNavItems, ...adminNavItems];
         case "USER":
             return [...commonNavItems, ...userNavItems];
-       
+
         default:
             return [];
     }

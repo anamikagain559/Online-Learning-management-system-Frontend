@@ -26,26 +26,24 @@ export async function getAllTravelPlans(queryString?: string) {
     };
   }
 }
-export async function getMatchedTravelPlans(query?: {
-  destination?: string;
-  startDate?: string;
-  endDate?: string;
-  travelType?: string;
-}) {
+export async function getMatchedTravelPlans(query?: Record<string, any>) {
   try {
-    // Build query string
-    const params = new URLSearchParams();
-    if (query?.destination) params.append("destination", query.destination);
-    if (query?.startDate) params.append("startDate", query.startDate);
-    if (query?.endDate) params.append("endDate", query.endDate);
-    if (query?.travelType) params.append("travelType", query.travelType);
+    const { queryStringFormatter } = await import("@/lib/formatters");
+    
+    // Add searchTerm as a fallback for destination if needed
+    const structuredQuery = {
+      ...query,
+      searchTerm: query?.searchTerm || query?.destination || ""
+    };
+    
+    const queryString = queryStringFormatter(structuredQuery);
 
-    const queryString = params.toString();
     const response = await serverFetch.get(
       `/travel-plans/match${queryString ? `?${queryString}` : ""}`
     );
 
-    return await response.json();
+    const result = await response.json();
+    return result;
   } catch (error: any) {
     console.error("Error fetching matched travel plans:", error);
     return {

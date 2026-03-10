@@ -50,7 +50,7 @@ const PatientsTable = ({ patients }: PatientsTableProps) => {
         onView={handleView}
         onEdit={handleEdit}
         onDelete={handleDelete}
-        getRowKey={(patient) => patient.id!}
+        getRowKey={(patient) => patient._id || patient.id}
         emptyMessage="No patients found"
       />
 

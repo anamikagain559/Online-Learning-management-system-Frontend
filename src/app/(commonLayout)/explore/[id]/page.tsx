@@ -14,6 +14,13 @@ import {
   updateReview,
 } from "@/services/review/review.service";
 import { ITravelPlan } from "@/types/travelPlan.interface";
+import {
+  sendBuddyRequest as sendReq,
+  getPlanBuddies,
+  getRequestsForTrip,
+  respondToRequest as respondToBuddyReq
+} from "@/services/buddyRequest/buddyRequest.service";
+import { UserCircle, CheckCircle2, Clock } from "lucide-react";
 
 /* ---------------- Star Display ---------------- */
 function StarRating({ rating }: { rating: number }) {
@@ -73,7 +80,32 @@ export default function ExploreDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  /* -------- Buddy State -------- */
+  const [buddies, setBuddies] = useState<any[]>([]);
+  const [hostRequests, setHostRequests] = useState<any[]>([]);
+  const [userRequestStatus, setUserRequestStatus] = useState<string | null>(null);
+  const [requestLoading, setRequestLoading] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
   const DEFAULT_IMAGE = "https://i.ibb.co/SxP3NYv/pexels-liza-summer-6347919.jpg";
+
+  /* -------- Fetch Current User -------- */
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_API_URL}/user/me`, {
+          credentials: 'include'
+        });
+        const data = await res.json();
+        if (data.success) {
+          setCurrentUser(data.data);
+        }
+      } catch (err) {
+        console.error("User fetch error:", err);
+      }
+    };
+    fetchUser();
+  }, []);
 
   /* -------- Fetch Travel Plan + Reviews -------- */
   useEffect(() => {
@@ -108,16 +140,33 @@ export default function ExploreDetailPage() {
           list.length === 0
             ? 0
             : list.reduce((acc: number, r: any) => acc + r.rating, 0) /
-              list.length;
+            list.length;
 
         setRating(avg);
       }
 
       setLoading(false);
+
+      // Fetch Buddies
+      const buddiesRes = await getPlanBuddies(id);
+      if (buddiesRes.success) setBuddies(buddiesRes.data);
+
+      // If host, fetch requests
+      if (found.user && currentUser?.id === found.user._id) {
+        const hostReqRes = await getRequestsForTrip(id);
+        if (hostReqRes.success) setHostRequests(hostReqRes.data);
+      } else if (currentUser) {
+        // Find current user's request status
+        const allTripReqs = await getRequestsForTrip(id); // Usually you'd have a specific "mine" endpoint, but I'll filter for now
+        if (allTripReqs.success) {
+          const mine = allTripReqs.data.find((r: any) => r.userId?._id === currentUser._id);
+          if (mine) setUserRequestStatus(mine.status);
+        }
+      }
     };
 
     fetchData();
-  }, [id]);
+  }, [id, currentUser]);
 
   /* -------- Submit or Edit Review -------- */
   const handleSubmitReview = async () => {
@@ -214,7 +263,7 @@ export default function ExploreDetailPage() {
           newReviews.length === 0
             ? 0
             : newReviews.reduce((acc: number, r: any) => acc + r.rating, 0) /
-              newReviews.length;
+            newReviews.length;
         setRating(avg);
 
         Swal.fire("Deleted!", "Your review has been deleted.", "success");
@@ -232,6 +281,43 @@ export default function ExploreDetailPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  /* -------- Buddy Request Logic -------- */
+  const handleJoinRequest = async () => {
+    if (!currentUser) {
+      Swal.fire("Login Required", "Please log in to join this trip", "info");
+      return;
+    }
+
+    try {
+      setRequestLoading(true);
+      const res = await sendReq(id);
+      if (res.success) {
+        setUserRequestStatus("PENDING");
+        Swal.fire("Request Sent!", "Your request to join this trip is pending approval.", "success");
+      } else {
+        Swal.fire("Failed", res.message || "Failed to send request", "error");
+      }
+    } finally {
+      setRequestLoading(false);
+    }
+  };
+
+  const handleHostAction = async (requestId: string, status: "APPROVED" | "REJECTED") => {
+    try {
+      const res = await respondToBuddyReq(requestId, status);
+      if (res.success) {
+        setHostRequests(prev => prev.map(r => r._id === requestId ? { ...r, status } : r));
+        if (status === "APPROVED") {
+          const approvedReq = hostRequests.find(r => r._id === requestId);
+          if (approvedReq) setBuddies(prev => [...prev, approvedReq]);
+        }
+        Swal.fire("Success", `Request ${status.toLowerCase()} successfully`, "success");
+      }
+    } catch (err) {
+      Swal.fire("Error", "Failed to process request", "error");
+    }
+  };
+
   /* -------- UI States -------- */
   if (loading)
     return <p className="text-center mt-8 text-gray-500">Loading...</p>;
@@ -239,139 +325,271 @@ export default function ExploreDetailPage() {
   if (!trip) return null;
 
   return (
-    <div className="container mx-auto p-4 max-w-3xl">
-      {/* Main Image */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
-        className="mb-6 rounded-lg overflow-hidden shadow-lg"
-      >
+    <div className="min-h-screen bg-[#F8FAFC] pb-20">
+      {/* Hero Section */}
+      <div className="relative w-full h-[50vh] md:h-[60vh]">
         <img
           src={trip.image || DEFAULT_IMAGE}
           alt={`${trip.destination.city} image`}
-          className="w-full h-64 object-cover"
+          className="w-full h-full object-cover"
         />
-      </motion.div>
-
-      {/* Trip Info */}
-      <motion.div
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6 }}
-      >
-        <h1 className="text-3xl font-bold mb-2">
-          {trip.destination.city}, {trip.destination.country}
-        </h1>
-
-        <div className="flex items-center gap-4 text-gray-500 text-sm mb-2">
-          <Calendar className="w-4 h-4" />
-          <span>
-            {new Date(trip.startDate).toLocaleDateString()} –{" "}
-            {new Date(trip.endDate).toLocaleDateString()}
-          </span>
-          <span className="ml-auto font-semibold">{trip.travelType}</span>
-        </div>
-
-        <p className="text-gray-700 mb-2">{trip.description}</p>
-        <p className="text-gray-700 mb-4">
-          Budget: {trip.budgetRange.min} – {trip.budgetRange.max} USD
-        </p>
-
-        {/* Rating Summary */}
-        <div className="flex items-center gap-2 mb-6">
-          <StarRating rating={rating} />
-          <span className="text-gray-500">({reviewCount} reviews)</span>
-        </div>
-      </motion.div>
-
-      {/* Reviews List */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ staggerChildren: 0.1, duration: 0.6 }}
-        className="space-y-4 mb-8"
-      >
-        {reviews.length === 0 && (
-          <p className="text-gray-500">No reviews yet</p>
-        )}
-
-        {reviews.map((r) => (
-          <motion.div
-            key={r._id}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="border rounded-lg p-4 bg-gray-50 relative"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <img
-                  src={r.reviewer?.picture || DEFAULT_IMAGE}
-                  alt={r.reviewer?.name || "Anonymous"}
-                  className="w-10 h-10 rounded-full object-cover"
-                />
-                <strong>{r.reviewer?.name || "Anonymous"}</strong>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+        <div className="absolute bottom-0 left-0 w-full p-6 md:p-12">
+          <div className="container mx-auto max-w-4xl">
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.6 }}
+            >
+              <div className="flex flex-wrap items-center gap-3 mb-4">
+                <span className="bg-indigo-600 text-white px-4 py-1.5 rounded-full text-sm font-semibold shadow-lg">
+                  {trip.travelType}
+                </span>
+                <span className="bg-white/20 backdrop-blur-md text-white px-4 py-1.5 rounded-full text-sm font-medium border border-white/30">
+                  {trip.budgetRange.min} - {trip.budgetRange.max} USD
+                </span>
               </div>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-3">
+                {trip.destination.city}, {trip.destination.country}
+              </h1>
+              <div className="flex items-center gap-2 text-white/90 font-medium">
+                <Calendar className="w-5 h-5" />
+                <span>
+                  {new Date(trip.startDate).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+                  {" — "}
+                  {new Date(trip.endDate).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+                </span>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </div>
 
-              <div className="flex items-center gap-2">
-                <StarRating rating={r.rating} />
-                {r.isCurrentUser && (
-                  <>
-                    <button
-                      onClick={() => handleEditReview(r)}
-                      className="text-blue-500 hover:text-blue-700"
-                    >
-                      <Edit2 className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteReview(r._id)}
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </>
+      <div className="container mx-auto max-w-4xl px-4 py-10 -mt-8 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Main Content (Left, 2/3) */}
+          <div className="md:col-span-2 space-y-8">
+            {/* Description Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100"
+            >
+              <h2 className="text-2xl font-bold text-slate-800 mb-4">About this Trip</h2>
+              <p className="text-slate-600 leading-relaxed text-lg whitespace-pre-line">
+                {trip.description}
+              </p>
+            </motion.div>
+
+            {/* Joined Buddies Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-3xl p-8 border border-indigo-100 shadow-inner"
+            >
+              <h3 className="text-xl font-bold text-indigo-950 flex items-center gap-3 mb-6">
+                <UserCircle className="w-6 h-6 text-indigo-600" />
+                Joined Buddies ({buddies.length})
+              </h3>
+              {buddies.length === 0 ? (
+                <p className="text-indigo-400/80 italic text-center py-4">No one has joined yet. Be the first!</p>
+              ) : (
+                <div className="flex flex-wrap gap-4">
+                  {buddies.map((b) => (
+                    <div key={b._id} className="group relative">
+                      <img
+                        src={b.userId?.picture || DEFAULT_IMAGE}
+                        alt={b.userId?.name}
+                        title={b.userId?.name}
+                        className="w-14 h-14 rounded-full border-4 border-white shadow-md object-cover transition-transform group-hover:scale-110"
+                      />
+                      <div className="absolute -bottom-1 -right-1 bg-green-500 w-4 h-4 rounded-full border-2 border-white shadow-sm" />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+
+            {/* Host Requests Management */}
+            {currentUser?._id === (trip.user as any)?._id && hostRequests.length > 0 && (
+              <div className="bg-white rounded-3xl p-8 border-2 border-indigo-100 shadow-md relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-bl-full -z-10"></div>
+                <h3 className="text-xl font-bold text-indigo-900 mb-6">
+                  Join Requests
+                  <span className="ml-2 bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm">
+                    {hostRequests.filter(r => r.status === "PENDING").length} pending
+                  </span>
+                </h3>
+                <div className="space-y-4">
+                  {hostRequests.map((req) => (
+                    <div key={req._id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border border-slate-100 rounded-2xl hover:border-indigo-200 hover:shadow-md transition-all bg-white group gap-4">
+                      <div className="flex items-center gap-4">
+                        <img src={req.userId?.picture || DEFAULT_IMAGE} className="w-12 h-12 rounded-full object-cover shadow-sm group-hover:ring-2 ring-indigo-100" />
+                        <div>
+                          <p className="font-bold text-slate-800">{req.userId?.name}</p>
+                          <p className="text-xs font-semibold px-2 py-0.5 mt-1 rounded-full w-fit bg-slate-100 text-slate-500">{req.status}</p>
+                        </div>
+                      </div>
+                      {req.status === "PENDING" && (
+                        <div className="flex w-full sm:w-auto gap-2">
+                          <button
+                            onClick={() => handleHostAction(req._id, "APPROVED")}
+                            className="flex-1 sm:flex-none bg-green-600 text-white font-semibold flex items-center justify-center gap-1 px-4 py-2 rounded-xl hover:bg-green-700 transition shadow-sm hover:shadow-md hover:shadow-green-200"
+                          >
+                            <CheckCircle2 className="w-4 h-4" /> Approve
+                          </button>
+                          <button
+                            onClick={() => handleHostAction(req._id, "REJECTED")}
+                            className="flex-1 sm:flex-none bg-red-50 text-red-600 font-semibold px-4 py-2 rounded-xl hover:bg-red-100/80 hover:text-red-700 transition"
+                          >
+                            Decline
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Action Sidebar (Right, 1/3) */}
+          <div className="md:col-span-1">
+            <div className="sticky top-24 space-y-6">
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4 }}
+                className="bg-white rounded-3xl p-6 shadow-xl shadow-slate-200/50 border border-slate-100"
+              >
+                {/* Rating Summary Snippet */}
+                <div className="text-center pb-6 border-b border-slate-100 mb-6">
+                  <h3 className="text-3xl font-black text-slate-800 mb-2">{rating.toFixed(1)}</h3>
+                  <div className="flex justify-center mb-1">
+                    <StarRating rating={rating} />
+                  </div>
+                  <p className="text-slate-500 text-sm font-medium">Based on {reviewCount} reviews</p>
+                </div>
+
+                {(!currentUser || currentUser?._id !== (trip.user as any)?._id) && (
+                  <div>
+                    {buddies.some(b => b.userId?._id === currentUser?._id) || userRequestStatus === "APPROVED" ? (
+                      <div className="flex items-center justify-center gap-3 py-4 rounded-2xl font-bold bg-green-500 text-white shadow-lg shadow-green-200">
+                        <CheckCircle2 className="w-6 h-6" />
+                        You're officially a Buddy!
+                      </div>
+                    ) : !userRequestStatus ? (
+                      <button
+                        onClick={handleJoinRequest}
+                        disabled={requestLoading}
+                        className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 text-white font-bold text-lg py-4 rounded-2xl hover:from-indigo-700 hover:to-blue-700 transition-all shadow-xl shadow-indigo-200/50 disabled:opacity-50 transform hover:-translate-y-0.5"
+                      >
+                        {requestLoading ? "Sending..." : "Request to Join Trip"}
+                      </button>
+                    ) : (
+                      <div className={`flex items-center justify-center gap-2 py-4 rounded-2xl font-bold border-2 ${userRequestStatus === "PENDING" ? "border-amber-200 bg-amber-50 text-amber-700" :
+                        "border-red-200 bg-red-50 text-red-700"
+                        }`}>
+                        <Clock className="w-5 h-5" />
+                        {userRequestStatus === "PENDING" ? "Join Request Pending..." : "Request Rejected"}
+                      </div>
+                    )}
+                  </div>
                 )}
-              </div>
+              </motion.div>
+            </div>
+          </div>
+        </div>
+
+        {/* Reviews Area full width below */}
+        <div className="mt-12 bg-white rounded-3xl p-8 shadow-sm border border-slate-100">
+          <h2 className="text-2xl font-bold text-slate-800 mb-8 pb-4 border-b">Traveler Reviews</h2>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            <div className="space-y-6">
+
+
+              {reviews.map((r) => (
+                <motion.div
+                  key={r._id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="border rounded-lg p-4 bg-gray-50 relative"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <img
+                        src={r.reviewer?.picture || DEFAULT_IMAGE}
+                        alt={r.reviewer?.name || "Anonymous"}
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
+                      <strong>{r.reviewer?.name || "Anonymous"}</strong>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <StarRating rating={r.rating} />
+                      {r.isCurrentUser && (
+                        <>
+                          <button
+                            onClick={() => handleEditReview(r)}
+                            className="text-blue-500 hover:text-blue-700"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteReview(r._id)}
+                            className="text-red-500 hover:text-red-700"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  <p className="text-gray-700 mt-2">{r.comment}</p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    {new Date(r.createdAt).toLocaleDateString()}
+                  </p>
+                </motion.div>
+              ))}
             </div>
 
-            <p className="text-gray-700 mt-2">{r.comment}</p>
-            <p className="text-xs text-gray-400 mt-1">
-              {new Date(r.createdAt).toLocaleDateString()}
-            </p>
-          </motion.div>
-        ))}
-      </motion.div>
+            {/* Add / Edit Review */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="bg-slate-50 border border-slate-100 rounded-3xl p-8 shadow-sm h-fit"
+            >
+              <h2 className="text-xl font-bold text-slate-800 mb-4">
+                {editingId ? "Edit Your Review" : "Write a Review"}
+              </h2>
 
-      {/* Add / Edit Review */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="border-t pt-6"
-      >
-        <h2 className="text-lg font-semibold mb-2">
-          {editingId ? "Edit Your Review" : "Write a Review"}
-        </h2>
+              <StarInput value={reviewRating} onChange={setReviewRating} />
 
-        <StarInput value={reviewRating} onChange={setReviewRating} />
+              <textarea
+                className="w-full border-2 border-slate-200 focus:border-indigo-500 rounded-2xl p-4 mt-4 text-slate-700 focus:ring-4 focus:ring-indigo-50 outline-none transition-all"
+                rows={4}
+                placeholder="Share your experience..."
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+              />
 
-        <textarea
-          className="w-full border rounded-lg p-3 mt-3"
-          rows={4}
-          placeholder="Share your experience..."
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
-        />
-
-        <button
-          onClick={handleSubmitReview}
-          disabled={submitting}
-          className="mt-3 bg-black text-white px-6 py-2 rounded-lg disabled:opacity-50 hover:bg-gray-800 transition"
-        >
-          {submitting ? "Submitting..." : editingId ? "Update Review" : "Submit Review"}
-        </button>
-      </motion.div>
+              <button
+                onClick={handleSubmitReview}
+                disabled={submitting}
+                className="mt-6 w-full bg-slate-900 text-white font-semibold flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl disabled:opacity-50 hover:bg-black transition-all shadow-lg hover:shadow-xl"
+              >
+                {submitting ? "Submitting..." : editingId ? "Update Review" : "Submit Review"}
+              </button>
+            </motion.div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
