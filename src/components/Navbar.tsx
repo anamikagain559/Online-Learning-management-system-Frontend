@@ -9,17 +9,17 @@ import { getUserInfo } from "@/services/auth/getUserInfo";
 export default async function Navbar() {
 const userInfo = await getUserInfo();
 
-const navItems = [
-  { href: "/", label: "Home" },
-  { href: "/explore", label: "Explore Travelers" },
+  const navItems = [
+    { href: "/", label: "Home" },
+    { href: "/explore", label: "Explore Travelers" },
     { href: "/match", label: "Match" },
-  { href: "/subscription", label: "Subscription" },
-    { href: "/allUser", label: "All User" },
-  { href: "/about", label: "About" },
-  { href: "/contact", label: "Contact" },
-  // Only show dashboard if userInfo exists
-  ...(userInfo ? [{ href: "/dashboard", label: "Dashboard" }] : []),
-];
+    { href: "/subscription", label: "Subscription" },
+    ...(userInfo?.role === "ADMIN" || userInfo?.role === "admin" ? [{ href: "/allUser", label: "All User" }] : []),
+    { href: "/about", label: "About" },
+    { href: "/contact", label: "Contact" },
+    // Only show dashboard if userInfo exists
+    ...(userInfo ? [{ href: "/dashboard", label: "Dashboard" }] : []),
+  ];
 
   const accessToken = await getCookie("accessToken");
   return (
@@ -76,9 +76,15 @@ const navItems = [
                 ))}
                 <div className="border-t pt-4 flex flex-col space-y-4">
                   <div className="flex justify-center"></div>
-                  <Link href="/login" className="text-lg font-medium">
-                    <Button>Login</Button>
-                  </Link>
+                  {accessToken ? (
+                    <div className="text-lg font-medium">
+                      <LogoutButton />
+                    </div>
+                  ) : (
+                    <Link href="/login" className="text-lg font-medium">
+                      <Button className="w-full">Login</Button>
+                    </Link>
+                  )}
                 </div>
               </nav>
             </SheetContent>
