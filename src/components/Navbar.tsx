@@ -1,6 +1,6 @@
 
 import { getCookie } from "@/services/auth/tokenHandlers";
-import { Menu } from "lucide-react";
+import { Menu, Plane } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -24,10 +24,18 @@ const userInfo = await getUserInfo();
   const accessToken = await getCookie("accessToken");
   return (
 
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur  dark:bg-background/95">
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur  dark:bg-background/95 animate-in fade-in slide-in-from-top-4 duration-500">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <Link href="/" className="flex items-center space-x-2">
-          <span className="text-xl font-bold text-primary">  TravelBuddy</span>
+        <Link href="/" className="flex items-center gap-2 group">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform duration-300">
+            <Plane className="h-5 w-5 text-white" />
+          </div>
+          <span className="text-2xl font-bold tracking-tight">
+            Travel
+            <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+              Buddy
+            </span>
+          </span>
         </Link>
 
         <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
