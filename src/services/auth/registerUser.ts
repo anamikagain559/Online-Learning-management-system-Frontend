@@ -13,6 +13,7 @@ export const registerUser = async (_currentState: any, formData: any): Promise<a
       name: formData.get("name"),
       address: formData.get("address"),
       email: formData.get("email"),
+      role: formData.get("role"),
       password: formData.get("password"),
       confirmPassword: formData.get("confirmPassword"),
     };

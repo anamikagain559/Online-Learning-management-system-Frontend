@@ -15,7 +15,11 @@ export const registerUserValidationZodSchema = z
       .string()
       .min(6, { message: "Confirm Password must be at least 6 characters long" })
       .max(100, { message: "Confirm Password must be at most 100 characters long" }),
+      role: z.enum(["STUDENT", "INSTRUCTOR"], {
+        message: "Role must be STUDENT or INSTRUCTOR",
+      }).default("STUDENT"),
   })
+
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"], // attach error to confirmPassword field

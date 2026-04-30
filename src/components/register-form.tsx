@@ -63,7 +63,21 @@ const RegisterForm = () => {
             <InputFieldError field="confirmPassword" state={state ?? undefined} />
           </Field>
         </div>
+        <Field>
+          <FieldLabel htmlFor="role">Role</FieldLabel>
 
+          <select
+            id="role"
+            name="role"
+            className="w-full border rounded-md p-2"
+            defaultValue="STUDENT"
+          >
+            <option value="STUDENT">Student</option>
+            <option value="INSTRUCTOR">Instructor</option>
+          </select>
+
+          <InputFieldError field="role" state={state ?? undefined} />
+        </Field>
         <FieldGroup className="mt-4">
           <Field>
             <Button type="submit" disabled={isPending}>
