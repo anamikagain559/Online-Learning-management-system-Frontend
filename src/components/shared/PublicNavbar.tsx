@@ -1,5 +1,5 @@
 import { getCookie } from "@/services/auth/tokenHandlers";
-import { Menu, Plane } from "lucide-react";
+import { Menu, GraduationCap } from "lucide-react";
 import Link from "next/link";
 import { Button } from "../ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "../ui/sheet";
@@ -7,11 +7,10 @@ import LogoutButton from "./LogoutButton";
 
 const PublicNavbar = async () => {
   const navItems = [
-    { href: "#", label: "Consultation" },
-    { href: "#", label: "Health Plans" },
-    { href: "#", label: "Medicine" },
-    { href: "#", label: "Diagnostics" },
-    { href: "#", label: "NGOs" },
+    { href: "/explore", label: "Courses" },
+    { href: "#", label: "Instructors" },
+    { href: "#", label: "About" },
+    { href: "#", label: "Contact" },
   ];
 
   const accessToken = await getCookie("accessToken");
@@ -21,12 +20,12 @@ const PublicNavbar = async () => {
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-2 group">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform duration-300">
-            <Plane className="h-5 w-5 text-white" />
+            <GraduationCap className="h-5 w-5 text-white" />
           </div>
           <span className="text-2xl font-bold tracking-tight">
-            Travel
+            Learn
             <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
-              Buddy
+              Hub
             </span>
           </span>
         </Link>

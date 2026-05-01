@@ -8,7 +8,7 @@ import { IUser } from "@/types/patient.interface";
 
 export const patientsColumns: Column<IUser>[] = [
   {
-    header: "Patient",
+    header: "User",
     accessor: (patient) => (
       <UserInfoCell
         name={patient.name}
@@ -27,12 +27,15 @@ export const patientsColumns: Column<IUser>[] = [
     ),
   },
   {
-    header: "Address",
-    accessor: (patient) => (
-      <span className="text-sm">{patient.address || "N/A"}</span>
+    header: "Role",
+    accessor: (user) => (
+      <StatusBadgeCell 
+        value={user.role} 
+        variant={user.role === "ADMIN" ? "success" : "secondary"}
+      />
     ),
-  }
-,
+    sortKey: "role",
+  },
   {
     header: "Joined",
     accessor: (patient) => <DateCell date={patient.createdAt} />,

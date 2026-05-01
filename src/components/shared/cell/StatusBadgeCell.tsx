@@ -3,19 +3,23 @@
 import { Badge } from "@/components/ui/badge";
 
 interface StatusBadgeCellProps {
-  isDeleted?: boolean;
-  activeText?: string;
-  deletedText?: string;
+  value: string;
+  variant?: "default" | "secondary" | "destructive" | "outline" | "success";
 }
 
 export function StatusBadgeCell({
-  isDeleted,
-  activeText = "Active",
-  deletedText = "Deleted",
+  value,
+  variant = "default",
 }: StatusBadgeCellProps) {
+  // Map "success" to a custom green style if needed, or just use default variants
+  const variantClass = variant === "success" ? "bg-emerald-50 text-emerald-700 border-emerald-100" : "";
+
   return (
-    <Badge variant={isDeleted ? "destructive" : "default"}>
-      {isDeleted ? deletedText : activeText}
+    <Badge 
+      variant={variant === "success" ? "default" : variant}
+      className={variantClass}
+    >
+      {value}
     </Badge>
   );
 }

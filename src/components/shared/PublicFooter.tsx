@@ -6,15 +6,15 @@ function PublicFooter() {
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="font-bold mb-2">PH Doc</h3>
-            <p className="text-sm text-muted-foreground">Your health is our priority. We are here to provide the best medical services.</p>
+            <h3 className="font-bold mb-2">LearnHub</h3>
+            <p className="text-sm text-muted-foreground">Your education is our priority. We are here to provide the best online learning experience.</p>
           </div>
           <div>
             <h3 className="font-semibold mb-2">Quick Links</h3>
             <ul className="space-y-2 text-sm">
-              <li><Link href="#" className="text-muted-foreground hover:text-foreground">Home</Link></li>
-              <li><Link href="#" className="text-muted-foreground hover:text-foreground">About Us</Link></li>
-              <li><Link href="#" className="text-muted-foreground hover:text-foreground">Services</Link></li>
+              <li><Link href="/" className="text-muted-foreground hover:text-foreground">Home</Link></li>
+              <li><Link href="/explore" className="text-muted-foreground hover:text-foreground">Explore Courses</Link></li>
+              <li><Link href="#" className="text-muted-foreground hover:text-foreground">Instructors</Link></li>
               <li><Link href="#" className="text-muted-foreground hover:text-foreground">Contact</Link></li>
             </ul>
           </div>
@@ -30,14 +30,14 @@ function PublicFooter() {
           <div>
             <h3 className="font-semibold mb-2">Contact Us</h3>
             <p className="text-sm text-muted-foreground">
-              123 Medical Lane<br />
-              Health City, HC 12345<br />
-              contact@phdoc.com
+              Level 4, 34, Awal Centre, Banani<br />
+              Dhaka, Bangladesh<br />
+              support@learnhub.com
             </p>
           </div>
         </div>
         <div className="mt-8 border-t pt-4 text-center text-sm text-muted-foreground">
-          &copy; {new Date().getFullYear()} TravelBuddy. All Rights Reserved.
+          &copy; {new Date().getFullYear()} LearnHub. All Rights Reserved.
         </div>
       </div>
     </footer>

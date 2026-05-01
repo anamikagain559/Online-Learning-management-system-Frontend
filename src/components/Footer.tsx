@@ -9,7 +9,7 @@ import {
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { getUserInfo } from "@/services/auth/getUserInfo";
-import { Plane, Mail, MapPin, Phone } from "lucide-react";
+import { GraduationCap, Mail, MapPin, Phone } from "lucide-react";
 
 interface FooterProps {
   logo?: {
@@ -54,9 +54,9 @@ const defaultLegalLinks = [
 
 const Footer = ({
   sections,
-  description = "Connect with like-minded travelers, plan unforgettable adventures, and explore the world together.",
+  description = "Empowering the next generation of innovators with accessible, high-quality, and career-transforming education.",
   socialLinks = defaultSocialLinks,
-  copyright = `© ${new Date().getFullYear()} TravelBuddy. All rights reserved.`,
+  copyright = `© ${new Date().getFullYear()} LearnHub. All rights reserved.`,
   legalLinks = defaultLegalLinks,
   className,
 }: FooterProps) => {
@@ -77,23 +77,24 @@ const Footer = ({
       title: "Explore",
       links: [
         { name: "Home", href: "/" },
-        { name: "Explore Travelers", href: "/explore" },
-        { name: "Match", href: "/match" },
+        { name: "Browse Courses", href: "/items" },
+        { name: "Top Instructors", href: "/about" },
       ],
     },
     {
       title: "Account",
       links: [
-        { name: "Subscription", href: "/subscription" },
-        { name: "All User", href: "/allUser" },
-        ...(userInfo ? [{ name: "Dashboard", href: "/dashboard" }] : []),
+        { name: "Subscriptions", href: "#" },
+        { name: "Profile", href: "/dashboard" },
+        ...(userInfo ? [{ name: "My Courses", href: "/items/manage" }] : []),
       ],
     },
     {
       title: "Company",
       links: [
-        { name: "About", href: "/about" },
-        { name: "Contact", href: "/contact" },
+        { name: "About Us", href: "/about" },
+        { name: "Contact", href: "#" },
+        { name: "Careers", href: "#" },
       ],
     },
   ];
@@ -126,12 +127,12 @@ const Footer = ({
           <div className="flex flex-col gap-6 lg:w-1/3">
             <Link href="/" className="flex items-center gap-2 group">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 shadow-lg shadow-indigo-500/20">
-                <Plane className="h-5 w-5 text-white" />
+                <GraduationCap className="h-5 w-5 text-white" />
               </div>
               <span className="text-2xl font-bold tracking-tight">
-                Travel
+                Learn
                 <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
-                  Buddy
+                  Hub
                 </span>
               </span>
             </Link>
@@ -144,15 +145,15 @@ const Footer = ({
             <div className="space-y-2 text-sm text-slate-400">
               <div className="flex items-center gap-2">
                 <Mail className="h-4 w-4 text-indigo-400" />
-                hello@travelbuddy.com
+                support@learnhub.com
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="h-4 w-4 text-indigo-400" />
-                +1 (555) 123-4567
+                +1 (555) LEARN-HUB
               </div>
               <div className="flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-indigo-400" />
-                San Francisco, CA
+                Silicon Valley, CA
               </div>
             </div>
 
@@ -200,9 +201,9 @@ const Footer = ({
         {/* ── Newsletter row ── */}
         <div className="mt-14 p-6 rounded-2xl bg-white/5 border border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
           <div>
-            <h4 className="font-semibold text-white">Stay Updated</h4>
+            <h4 className="font-semibold text-white">Join the Community</h4>
             <p className="text-sm text-slate-400">
-              Get the latest travel tips and community updates.
+              Get weekly insights on technology, design, and business.
             </p>
           </div>
           <div className="flex w-full md:w-auto">

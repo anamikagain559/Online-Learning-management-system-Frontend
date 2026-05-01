@@ -1,30 +1,30 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { UserPlus, Map, Users, ArrowRight } from "lucide-react";
+import { UserPlus, BookOpen, GraduationCap, ArrowRight, Search, Award } from "lucide-react";
 
 const steps = [
   {
     step: "01",
-    title: "Sign Up",
-    desc: "Create your travel profile with interests, preferences, and dream destinations.",
+    title: "Join LearnHub",
+    desc: "Create your personalized learner profile and define your educational goals for a tailored experience.",
     icon: UserPlus,
-    gradient: "from-blue-500 to-cyan-400",
-    shadowColor: "shadow-blue-500/20",
+    gradient: "from-indigo-600 to-blue-500",
+    shadowColor: "shadow-indigo-500/20",
   },
   {
     step: "02",
-    title: "Create a Plan",
-    desc: "Add your destination, dates, budget, and travel style for the perfect trip.",
-    icon: Map,
-    gradient: "from-purple-500 to-pink-400",
+    title: "Choose a Course",
+    desc: "Browse our extensive catalog of expert-led courses across technology, design, and business.",
+    icon: Search,
+    gradient: "from-purple-600 to-indigo-500",
     shadowColor: "shadow-purple-500/20",
   },
   {
     step: "03",
-    title: "Find a Buddy",
-    desc: "Get matched with like-minded travelers and start your adventure together.",
-    icon: Users,
+    title: "Start Mastering",
+    desc: "Engage with interactive content, complete hands-on projects, and earn industry-recognized certificates.",
+    icon: Award,
     gradient: "from-amber-500 to-orange-400",
     shadowColor: "shadow-amber-500/20",
   },
@@ -61,14 +61,14 @@ export default function HowItWorks() {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <span className="inline-block px-4 py-1.5 rounded-full bg-indigo-100 text-indigo-700 text-sm font-semibold mb-4">
-            Simple Steps
+          <span className="inline-block px-4 py-1.5 rounded-full bg-indigo-100 text-indigo-700 text-sm font-semibold mb-4 uppercase tracking-widest">
+            The Process
           </span>
-          <h2 className="text-3xl md:text-5xl font-bold text-gray-900">
+          <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight">
             How It Works
           </h2>
-          <p className="mt-4 text-gray-500 max-w-lg mx-auto text-lg">
-            Three easy steps to find your perfect travel companion
+          <p className="mt-4 text-gray-500 max-w-lg mx-auto text-lg font-medium">
+            Mastering a new skill has never been easier with our streamlined learning journey.
           </p>
         </motion.div>
 
@@ -78,7 +78,7 @@ export default function HowItWorks() {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true }}
-          className="grid gap-8 md:grid-cols-3"
+          className="grid gap-10 md:grid-cols-3"
         >
           {steps.map((item, index) => {
             const Icon = item.icon;
@@ -86,35 +86,35 @@ export default function HowItWorks() {
               <motion.div
                 key={index}
                 variants={cardVariants}
-                whileHover={{ y: -8, transition: { duration: 0.3 } }}
-                className={`group relative rounded-3xl bg-white p-8 shadow-lg ${item.shadowColor} border border-gray-100 transition-all duration-300 hover:shadow-xl`}
+                whileHover={{ y: -10, transition: { duration: 0.3 } }}
+                className={`group relative rounded-[2.5rem] bg-white p-10 shadow-xl ${item.shadowColor} border border-gray-100 transition-all duration-300 hover:shadow-2xl hover:border-indigo-100`}
               >
                 {/* Step number watermark */}
-                <span className="absolute top-4 right-6 text-7xl font-black text-gray-100 select-none group-hover:text-gray-200 transition-colors">
+                <span className="absolute top-6 right-8 text-8xl font-black text-gray-50 select-none group-hover:text-indigo-50 transition-colors duration-500">
                   {item.step}
                 </span>
 
                 {/* Icon */}
                 <div
-                  className={`relative z-10 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br ${item.gradient} text-white shadow-lg ${item.shadowColor}`}
+                  className={`relative z-10 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br ${item.gradient} text-white shadow-xl ${item.shadowColor} transform group-hover:scale-110 transition-transform duration-500`}
                 >
-                  <Icon className="h-7 w-7" />
+                  <Icon className="h-9 w-9" />
                 </div>
 
                 {/* Content */}
-                <div className="relative z-10 mt-6">
-                  <h3 className="text-xl font-bold text-gray-900">
+                <div className="relative z-10 mt-8">
+                  <h3 className="text-2xl font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">
                     {item.title}
                   </h3>
-                  <p className="mt-3 text-gray-500 leading-relaxed text-sm">
+                  <p className="mt-4 text-gray-500 leading-relaxed font-medium">
                     {item.desc}
                   </p>
                 </div>
 
                 {/* Arrow indicator */}
                 {index < steps.length - 1 && (
-                  <div className="hidden md:flex absolute -right-5 top-1/2 -translate-y-1/2 z-20 h-10 w-10 items-center justify-center rounded-full bg-white shadow-md border border-gray-100">
-                    <ArrowRight className="h-4 w-4 text-gray-400" />
+                  <div className="hidden lg:flex absolute -right-6 top-1/2 -translate-y-1/2 z-20 h-12 w-12 items-center justify-center rounded-full bg-white shadow-lg border border-indigo-50 group-hover:border-indigo-200 transition-all">
+                    <ArrowRight className="h-5 w-5 text-indigo-400 group-hover:text-indigo-600" />
                   </div>
                 )}
               </motion.div>

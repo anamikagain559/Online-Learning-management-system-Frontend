@@ -1,7 +1,7 @@
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
-import { getDefaultDashboardRoute, getRouteOwner, isAuthRoute, UserRole } from './lib/auth-utils';
+import { getDefaultDashboardRoute, getRouteOwner, isAuthRoute, UserRole, canAccessRoute } from './lib/auth-utils';
 import { getUserInfo } from './services/auth/getUserInfo';
 import { deleteCookie, getCookie } from './services/auth/tokenHandlers';
 
@@ -22,23 +22,21 @@ export async function proxy(request: NextRequest) {
             );
 
             if (typeof verifiedToken === "string") {
-                // Invalid token string → delete cookies
                 await deleteCookie("accessToken");
                 await deleteCookie("refreshToken");
                 return NextResponse.redirect(new URL("/login", request.url));
             }
 
-            userRole = verifiedToken.role;
+            userRole = verifiedToken.role as UserRole;
         } catch (err) {
-            // Expired or invalid token → delete cookies
             await deleteCookie("accessToken");
             await deleteCookie("refreshToken");
             return NextResponse.redirect(new URL("/login", request.url));
         }
     }
 
-    const routerOwner = getRouteOwner(pathname); // "ADMIN" | "USER" | "COMMON" | null
-    const isAuth = isAuthRoute(pathname); // true if login/register pages
+    const routerOwner = getRouteOwner(pathname);
+    const isAuth = isAuthRoute(pathname);
 
     // 3️⃣ Rule: Logged in user trying to access login/register → redirect to default dashboard
     if (accessToken && isAuth) {
@@ -75,23 +73,15 @@ export async function proxy(request: NextRequest) {
         }
     }
 
-    // 7️⃣ Rule: Common protected route → allow
-    if (routerOwner === "COMMON") {
-        return NextResponse.next();
+    // 7️⃣ Rule: Check access permissions
+    if (userRole && !canAccessRoute(userRole, routerOwner)) {
+        return NextResponse.redirect(new URL(getDefaultDashboardRoute(userRole as UserRole), request.url));
     }
 
-    // 8️⃣ Rule: Role-based protected route
-    if (routerOwner === "ADMIN" || routerOwner === "USER") {
-        if (userRole !== routerOwner) {
-            return NextResponse.redirect(new URL(getDefaultDashboardRoute(userRole as UserRole), request.url));
-        }
-    }
-
-    // 9️⃣ Default → allow
+    // 8️⃣ Default → allow
     return NextResponse.next();
 }
 
-// 10️⃣ Matcher → apply middleware to all routes except static, API, metadata
 export const config = {
     matcher: [
         '/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|.well-known).*)',

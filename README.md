@@ -1,228 +1,105 @@
-# 🧳 Travel Buddy & Meetup Platform
+# 🎓 LearnHub: Premium Online Learning Platform
 
-A full-stack social travel platform that helps travelers find compatible travel buddies, plan trips together, and build meaningful connections. The platform blends **social networking**, **travel planning**, and **subscription-based premium features** to turn solo trips into shared adventures.
+LearnHub is a full-stack, premium Online Learning Management System (LMS) designed to bridge the gap between expert instructors and passionate learners. The platform features a sophisticated course discovery system, detailed curriculum views, and a dedicated instructor dashboard to manage educational content.
 
 ---
 
-## 🌍 Live URLs
-- **Frontend Live URL:** https://travel-buddy-azure.vercel.app 
-- **Backend Live URL:** https://travel-buddy-backend-kappa.vercel.app
+## 🌐 Live URLs
+- **Frontend Live URL:** [https://learn-hub-frontend.vercel.app](https://travel-buddy-azure.vercel.app) *(Update with new URL when available)*
+- **Backend Live URL:** [https://learn-hub-backend.vercel.app](https://travel-buddy-backend-kappa.vercel.app) *(Update with new URL when available)*
+
 ---
 
 ## 📌 Project Overview
-**Travel Buddy & Meetup** aims to create a vibrant community of travelers by enabling users to:
-- Share upcoming travel plans
-- Discover travelers going to similar destinations
-- Match based on interests, dates, and travel type
-- Review and rate travel companions after trips
+**LearnHub** aims to democratize high-quality education by enabling users to:
+- **Discover Courses**: Search and filter through a wide range of categories and difficulty levels.
+- **Learn from Experts**: Access detailed course materials and track progress with industry-leading instructors.
+- **Instruct & Inspire**: Create and manage courses through a dedicated dashboard for educators.
+- **Community Engagement**: Review and rate courses to help others find the best learning resources.
 
-This platform empowers users to explore the world **together**, not alone.
+This platform empowers learners to master new skills **anywhere**, **anytime**.
 
 ---
 
 ## 🎯 Objectives
-- Build a social-travel web platform for connecting travelers
-- Enable trip sharing and traveler matching
-- Allow users to create detailed travel profiles and itineraries
-- Provide a secure and engaging UI/UX
-- Implement role-based authentication and data persistence
+- Build a premium digital learning ecosystem for global education.
+- Enable seamless course publishing and discovery.
+- Provide a high-performance UI/UX with modern aesthetics (Glassmorphism, Mesh Gradients).
+- Implement role-based authentication (Student/Instructor/Admin).
+- Ensure secure data persistence and payment integration.
 
 ---
 
 ## ✨ Core Features
 
-### 🔐 Authentication & Roles
-- Email & Password based authentication
-- JWT-based authorization
-- Secure password hashing
+### 🔐 Authentication & Access Control
+- Secure Email & Password authentication with JWT.
 - **Roles:**
-  - **User:** Create travel plans, match with others, review travelers
-  - **Admin:** Manage users, travel plans, and platform content
+  - **Student:** Enroll in courses, track progress, and review instructors.
+  - **Instructor:** Publish and manage courses, monitor student enrollment.
+  - **Admin:** Oversee users, courses, and platform-wide configurations.
 
----
+### 📚 Course Discovery System
+- **Advanced Search**: Find courses by title, category, or description.
+- **Smart Filters**: Filter by difficulty level (Beginner, Intermediate, Advanced) and price range.
+- **Premium Cards**: Visual-rich cards showing instructor info, ratings, and pricing.
 
-### 👤 User Profile Management (CRUD)
-- Full Name
-- Profile Image (Cloudinary / ImgBB)
-- Bio / About section
-- Travel Interests (hiking, food tours, photography, etc.)
-- Visited Countries
-- Current Location
-- Public profile view for other users
+### 🖼️ Course Details & Curriculum
+- Comprehensive course overview with images and detailed descriptions.
+- Key specification sections and curriculum highlights.
+- Conversion-focused enrollment sidebar with 30-day money-back guarantee.
 
----
-
-### 🧳 Travel Plan Management (CRUD)
-- Destination (Country / City)
-- Start Date & End Date
-- Budget Range
-- Travel Type (Solo, Family, Friends)
-- Short itinerary / description
-- Plans are publicly visible for discovery and matching
-
----
-
-### 🔍 Search & Matching System
-- Search by destination
-- Filter by date range
-- Match by travel interests
-- View compatible traveler profiles
-
----
+### 🛠️ Instructor Dashboard (CRUD)
+- **Add Course**: Premium form for creating new educational content.
+- **Manage Courses**: Sophisticated table view to track, edit, or delete published courses.
+- **Analytics**: Monitor enrollment counts and student feedback.
 
 ### ⭐ Review & Rating System
-- Post-trip reviews between travelers
-- Rating system (1–5 stars)
-- Edit or delete reviews
-- Average rating displayed on user profiles
+- Student feedback loop for course quality assurance.
+- 5-star rating system with verified reviewer badges.
+- Average ratings displayed prominently on course cards.
 
 ---
 
-### 💳 Payment & Subscription
-- Monthly & Yearly subscription plans
-- Verified badge for premium users
-- Payment gateway integration:
-  - Stripe / SSLCommerz / others
-
----
-
-## 🧭 Pages & Functional Requirements
-
-### 🧩 Navbar
-**Logged Out:**
-- Home
-- Explore Travelers
-- Find Travel Buddy
-- Login
-- Register
-
-**Logged In (User):**
-- Home
-- Explore Travelers
-- My Travel Plans
-- Profile
-- Logout
-
-**Logged In (Admin):**
-- Home
-- Admin Dashboard
-- Manage Users
-- Manage Travel Plans
-- Profile
-- Logout
-
----
-
-### 🏠 Home Page (/)
-Minimum **6 sections**, including:
-- Hero section with CTA
-- How It Works (3 steps)
-- Popular Destinations
-- Top-Rated Travelers
-- Testimonials
-- Why Choose Us
-
----
-
-### 📄 Other Pages
-- **/register** – User registration
-- **/login** – Secure login
-- **/profile/[id]** – User profile & reviews
-- **/dashboard** – User/Admin dashboard
-- **/travel-plans** – List of user travel plans
-- **/travel-plans/add** – Create new travel plan
-- **/travel-plans/[id]** – Travel plan details & join request
-- **/explore** – Search & match travelers
-
----
-
-## 🚀 Optional Features
-| Feature | Description |
-|------|------------|
-| 📍 Map Integration | Show nearby travelers using Google Maps API |
-| 📨 Notifications | In-app or push notifications |
-| 📸 Media Sharing | Share travel photos |
-
----
-
-## 🗂 Folder Structure
-
-### Frontend
-```
-frontend/
- ├── app/
- │   ├── (auth)/login, register
- │   ├── (user)/profile, travel-plans
- │   ├── components/
- │   ├── utils/
- │   └── styles/
-```
-
-### Backend
-```
-backend/
- ├── src/
- │   ├── modules/
- │   │   ├── users/
- │   │   ├── travelPlans/
- │   │   ├── reviews/
- │   │   ├── payments/
- │   └── ...
-```
-
----
-
-## 🌐 API Endpoints
-
-| Method | Endpoint | Description |
-|------|---------|-------------|
-| POST | /api/auth/register | Register new user |
-| POST | /api/auth/login | Login user |
-| GET | /api/users/:id | Get user profile |
-| PATCH | /api/users/:id | Update user profile |
-| POST | /api/travel-plans | Create travel plan |
-| GET | /api/travel-plans | Get all travel plans |
-| GET | /api/travel-plans/match | Search & match travelers |
-| POST | /api/reviews | Add review |
-| POST | /api/payments/create-intent | Create payment intent |
+## 🏠 Home Page Sections
+Minimum **8 premium sections**, including:
+- **Hero Section**: Animated mesh gradients and floating educational icons.
+- **How It Works**: 3-step guide for new students.
+- **Top Categories**: Discovery preview for popular learning tracks.
+- **Featured Courses**: Highlights of trending masterclasses.
+- **Meet the Instructors**: Expert profiles with credentials and ratings.
+- **Why LearnHub**: Value proposition for student success.
+- **Testimonials**: Real success stories from our global community.
+- **CTA Banner**: Quick enrollment trigger for new users.
 
 ---
 
 ## 🛠 Technology Stack
 
 ### Frontend
-- Next.js
-- Tailwind CSS
+- **Framework**: Next.js 14+ (App Router)
+- **Styling**: Tailwind CSS & Vanilla CSS
+- **Components**: Shadcn/UI & Lucide Icons
+- **Animations**: Framer Motion
 
 ### Backend
-- Node.js
-- Express.js
-- Prisma / Mongoose
-
-### Database
-- PostgreSQL / MongoDB
-
-### Authentication
-- JWT (JSON Web Token)
-
-### Payments
-- SSLCommerz / Stripe
+- **Node.js** & **Express.js**
+- **Database**: PostgreSQL / MongoDB (Prisma/Mongoose)
+- **Authentication**: JWT & Cookie-based sessions
 
 ### Deployment
-- Frontend: Vercel
-- Backend: Render / Railway
+- **Frontend**: Vercel
+- **Backend**: Render / Railway
 
 ---
 
-## 📦 Installation & Setup (Optional)
+## 📦 Installation & Setup
 ```bash
-# Frontend
-cd frontend
-npm install
-npm run dev
+# Clone the repository
+git clone https://github.com/anamikagain559/Learn-Hub.git
 
-# Backend
-cd backend
+# Navigate to frontend
+cd Online-Learning-management-system-Frontend
 npm install
 npm run dev
 ```
@@ -230,7 +107,7 @@ npm run dev
 ---
 
 ## 🤝 Contribution
-Contributions, issues, and feature requests are welcome.
+Contributions, issues, and feature requests are welcome. Feel free to check the issues page.
 
 ---
 
@@ -239,5 +116,4 @@ This project is developed for educational and portfolio purposes.
 
 ---
 
-✨ *Travel together. Explore more. Connect globally.*
-
+✨ *Master new skills. Build your future. Learn with LearnHub.*

@@ -1,4 +1,3 @@
-""
 import { NavSection } from "@/types/dashboard.interface";
 import { getDefaultDashboardRoute, UserRole } from "./auth-utils";
 
@@ -12,16 +11,14 @@ export const getCommonNavItems = (role: UserRole): NavSection[] => {
                     title: "Dashboard",
                     href: defaultDashboard,
                     icon: "LayoutDashboard",
-                    roles: ["USER", "ADMIN"],
+                    roles: ["STUDENT", "INSTRUCTOR", "ADMIN"],
                 },
                 {
                     title: "My Profile",
                     href: `/my-profile`,
                     icon: "User",
-                    roles: ["USER", "ADMIN"],
+                    roles: ["STUDENT", "INSTRUCTOR", "ADMIN"],
                 },
-
-
             ]
         },
         {
@@ -30,34 +27,44 @@ export const getCommonNavItems = (role: UserRole): NavSection[] => {
                 {
                     title: "Change Password",
                     href: "/change-password",
-                    icon: "Settings", // ✅ String
-                    roles: ["USER", "ADMIN"],
+                    icon: "Settings", 
+                    roles: ["STUDENT", "INSTRUCTOR", "ADMIN"],
                 },
             ],
         },
     ]
 }
 
-
-
-export const userNavItems: NavSection[] = [
-
+export const studentNavItems: NavSection[] = [
     {
         items: [
-
             {
-                title: "Travel Plans",
-                href: "/dashboard/travel-plans",
-                icon: "Users", // ✅ String
-                roles: ["USER"],
+                title: "My Enrollments",
+                href: "/dashboard/courses",
+                icon: "BookOpen", 
+                roles: ["STUDENT"],
             },
-
         ]
     },
+]
 
-
-
-
+export const instructorNavItems: NavSection[] = [
+    {
+        items: [
+            {
+                title: "Manage Courses",
+                href: "/items/manage",
+                icon: "GraduationCap", 
+                roles: ["INSTRUCTOR"],
+            },
+            {
+                title: "Add New Course",
+                href: "/items/add",
+                icon: "PlusCircle",
+                roles: ["INSTRUCTOR"],
+            },
+        ]
+    },
 ]
 
 export const adminNavItems: NavSection[] = [
@@ -67,18 +74,18 @@ export const adminNavItems: NavSection[] = [
             {
                 title: "Users",
                 href: "/admin/dashboard/user-management",
-                icon: "Users", // ✅ String
+                icon: "Users", 
                 roles: ["ADMIN"],
             },
             {
-                title: "Travel Plans",
-                href: "/admin/dashboard/travel-plans",
-                icon: "Map", // Improved icon
+                title: "Courses",
+                href: "/admin/dashboard/courses",
+                icon: "GraduationCap", 
                 roles: ["ADMIN"],
             },
             {
-                title: "Join Requests",
-                href: "/admin/dashboard/buddy-requests",
+                title: "Enrollments",
+                href: "/admin/dashboard/enrollments",
                 icon: "UserPlus",
                 roles: ["ADMIN"],
             },
@@ -92,9 +99,10 @@ export const getNavItemsByRole = (role: UserRole): NavSection[] => {
     switch (role) {
         case "ADMIN":
             return [...commonNavItems, ...adminNavItems];
-        case "USER":
-            return [...commonNavItems, ...userNavItems];
-
+        case "STUDENT":
+            return [...commonNavItems, ...studentNavItems];
+        case "INSTRUCTOR":
+            return [...commonNavItems, ...instructorNavItems];
         default:
             return [];
     }

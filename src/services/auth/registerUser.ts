@@ -32,6 +32,7 @@ export const registerUser = async (_currentState: any, formData: any): Promise<a
       address: validatedPayload.address,
       email: validatedPayload.email,
       password: validatedPayload.password,
+      role: validatedPayload.role,
     };
 
     // 4️⃣ Send JSON request (no FormData)

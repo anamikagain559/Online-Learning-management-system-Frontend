@@ -2,7 +2,8 @@
 
 export enum Role {
   ADMIN = "ADMIN",
-  USER = "USER",
+  INSTRUCTOR = "INSTRUCTOR",
+  STUDENT = "STUDENT",
 }
 
 export enum IsActive {

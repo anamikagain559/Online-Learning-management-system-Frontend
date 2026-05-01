@@ -2,15 +2,15 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { Plane, MapPin, Globe2 } from "lucide-react";
+import { GraduationCap, BookOpen, Sparkles, Lightbulb, PenTool } from "lucide-react";
 
 /* ──────────────────── floating icon data ──────────────────── */
 const floatingIcons = [
-  { Icon: Plane, x: "10%", y: "20%", delay: 0, size: 28, rotate: -15 },
-  { Icon: MapPin, x: "85%", y: "15%", delay: 0.5, size: 24, rotate: 10 },
-  { Icon: Globe2, x: "75%", y: "75%", delay: 1, size: 32, rotate: -8 },
-  { Icon: Plane, x: "15%", y: "70%", delay: 1.5, size: 22, rotate: 20 },
-  { Icon: MapPin, x: "50%", y: "85%", delay: 0.8, size: 20, rotate: -5 },
+  { Icon: GraduationCap, x: "10%", y: "20%", delay: 0, size: 28, rotate: -15 },
+  { Icon: BookOpen, x: "85%", y: "15%", delay: 0.5, size: 24, rotate: 10 },
+  { Icon: Sparkles, x: "75%", y: "75%", delay: 1, size: 32, rotate: -8 },
+  { Icon: Lightbulb, x: "15%", y: "70%", delay: 1.5, size: 22, rotate: 20 },
+  { Icon: PenTool, x: "50%", y: "85%", delay: 0.8, size: 20, rotate: -5 },
 ];
 
 /* ──────────────────── particle dots ──────────────────── */
@@ -47,7 +47,7 @@ export default function Hero() {
         />
       ))}
 
-      {/* ── floating travel icons ── */}
+      {/* ── floating LMS icons ── */}
       {floatingIcons.map(({ Icon, x, y, delay, size, rotate }, idx) => (
         <motion.div
           key={idx}
@@ -88,7 +88,7 @@ export default function Hero() {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
           </span>
-          2,500+ Travelers Already Connected
+          10,000+ Students Already Learning
         </motion.div>
 
         {/* heading */}
@@ -101,7 +101,7 @@ export default function Hero() {
           Find Your Perfect{" "}
           <br className="hidden sm:block" />
           <span className="bg-gradient-to-r from-yellow-300 via-amber-300 to-orange-400 bg-clip-text text-transparent">
-            Travel Buddy
+            Learning Partner
           </span>
         </motion.h1>
 
@@ -112,8 +112,8 @@ export default function Hero() {
           transition={{ duration: 0.8, delay: 0.3 }}
           className="mt-6 max-w-2xl mx-auto text-lg md:text-xl text-white/70 leading-relaxed"
         >
-          Connect with like‑minded travelers, plan trips together, and turn
-          solo journeys into unforgettable shared adventures.
+          Connect with like‑minded learners, join courses together, and turn
+          solitary study into collaborative growth adventures.
         </motion.p>
 
         {/* buttons */}
@@ -123,19 +123,19 @@ export default function Hero() {
           transition={{ duration: 0.8, delay: 0.45 }}
           className="mt-10 flex flex-col sm:flex-row justify-center gap-4"
         >
-          <Link href="/match">
+          <Link href="/explore">
             <button className="group relative px-8 py-4 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl font-semibold shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 transition-all duration-300 hover:scale-[1.04] overflow-hidden">
               <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700" />
               <span className="relative flex items-center gap-2">
-                <Plane size={18} />
-                Find Travel Buddy
+                <GraduationCap size={18} />
+                Explore Courses
               </span>
             </button>
           </Link>
 
-          <Link href="/explore">
+          <Link href="/register">
             <button className="px-8 py-4 border border-white/30 rounded-2xl font-semibold backdrop-blur-sm bg-white/5 hover:bg-white/15 transition-all duration-300 hover:scale-[1.04] hover:border-white/50">
-              Explore Travelers
+              Join Community
             </button>
           </Link>
         </motion.div>
@@ -148,9 +148,9 @@ export default function Hero() {
           className="mt-16 flex flex-wrap justify-center gap-8 md:gap-16"
         >
           {[
-            { label: "Active Travelers", value: "2,500+" },
-            { label: "Trips Matched", value: "1,200+" },
-            { label: "Countries", value: "85+" },
+            { label: "Active Students", value: "10,000+" },
+            { label: "Courses Published", value: "500+" },
+            { label: "Certified Mentors", value: "150+" },
           ].map((stat) => (
             <div key={stat.label} className="text-center">
               <p className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">
