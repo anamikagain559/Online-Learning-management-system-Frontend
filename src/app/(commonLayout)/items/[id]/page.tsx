@@ -14,7 +14,8 @@ import {
   CheckCircle,
   PlayCircle,
   FileText,
-  Award
+  Award,
+  Loader2
 } from "lucide-react";
 import Swal from "sweetalert2";
 import { motion } from "framer-motion";
@@ -24,6 +25,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
+import CheckoutModal from "@/components/modules/Course/CheckoutModal";
+import { createCoursePaymentIntent } from "@/services/payment/payment.services";
+
 export default function ItemDetailsPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
@@ -32,6 +36,11 @@ export default function ItemDetailsPage() {
   const [course, setCourse] = useState<ICourse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Stripe Modal State
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [isProcessingEnroll, setIsProcessingEnroll] = useState(false);
 
   const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80";
 
@@ -62,6 +71,36 @@ export default function ItemDetailsPage() {
     fetchCourse();
   }, [id]);
 
+  const handleEnrollClick = async () => {
+    if (!course) return;
+    
+    setIsProcessingEnroll(true);
+    try {
+      const res = await createCoursePaymentIntent(course._id);
+      if (res.success) {
+        setClientSecret(res.data.clientSecret);
+        setIsCheckoutOpen(true);
+      } else {
+        Swal.fire({
+          title: "Access Restricted",
+          text: res.message || "Please log in to enroll in this course.",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "Log In Now",
+          confirmButtonColor: "#4f46e5",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            router.push("/login");
+          }
+        });
+      }
+    } catch (err) {
+      Swal.fire("Error", "Failed to initiate enrollment. Please try again.", "error");
+    } finally {
+      setIsProcessingEnroll(false);
+    }
+  };
+
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-[80vh]">
       <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600"></div>
@@ -80,6 +119,18 @@ export default function ItemDetailsPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
+      {/* Checkout Modal */}
+      {clientSecret && (
+        <CheckoutModal
+          isOpen={isCheckoutOpen}
+          onClose={() => setIsCheckoutOpen(false)}
+          clientSecret={clientSecret}
+          courseId={course._id}
+          courseName={course.category}
+          price={course.price}
+        />
+      )}
+
       {/* Back Button Overlay */}
       <div className="container mx-auto max-w-6xl px-4 pt-8 mb-4 relative z-20">
         <Button 
@@ -201,13 +252,24 @@ export default function ItemDetailsPage() {
             >
               <div className="p-8">
                 <div className="flex items-baseline gap-2 mb-6">
-                  <span className="text-5xl font-black text-slate-900">${course.priceRange?.min || 0}</span>
-                  <span className="text-slate-400 line-through text-xl font-bold">${(course.priceRange?.min || 0) + 50}</span>
+                  <span className="text-5xl font-black text-slate-900">${course.price || 0}</span>
+                  <span className="text-slate-400 line-through text-xl font-bold">${(course.price || 0) + 50}</span>
                   <Badge className="bg-rose-50 text-rose-600 border-none font-bold ml-2">80% OFF</Badge>
                 </div>
 
-                <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-lg py-8 rounded-2xl shadow-xl shadow-indigo-200 transition-all hover:scale-[1.02] active:scale-95">
-                  Enroll Now
+                <Button 
+                  onClick={handleEnrollClick}
+                  disabled={isProcessingEnroll}
+                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-lg py-8 rounded-2xl shadow-xl shadow-indigo-200 transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-70"
+                >
+                  {isProcessingEnroll ? (
+                    <span className="flex items-center gap-2">
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                      Initializing...
+                    </span>
+                  ) : (
+                    "Enroll Now"
+                  )}
                 </Button>
                 
                 <p className="text-center text-slate-400 text-sm mt-4 font-medium">30-Day Money-Back Guarantee</p>

@@ -26,10 +26,7 @@ export default function AddItemPage() {
       category: formData.get("category") as string,
       startDate: formData.get("startDate") as string,
       endDate: formData.get("endDate") as string,
-      priceRange: {
-        min: Number(formData.get("priceMin")),
-        max: Number(formData.get("priceMax")),
-      },
+      price: Number(formData.get("price")),
       courseLevel: formData.get("courseLevel") as any,
       description: formData.get("description") as string,
       image: formData.get("image") as string,
@@ -137,33 +134,17 @@ export default function AddItemPage() {
                   />
                 </div>
 
-                {/* Price Min */}
+                {/* Price */}
                 <div className="space-y-3">
-                  <Label htmlFor="priceMin" className="text-slate-700 font-bold flex items-center gap-2">
+                  <Label htmlFor="price" className="text-slate-700 font-bold flex items-center gap-2">
                     <DollarSign className="h-4 w-4 text-indigo-500" />
-                    Minimum Price ($)
+                    Course Price ($)
                   </Label>
                   <Input
-                    id="priceMin"
-                    name="priceMin"
+                    id="price"
+                    name="price"
                     type="number"
-                    placeholder="0"
-                    required
-                    className="rounded-xl border-slate-200 focus:ring-indigo-500 h-12"
-                  />
-                </div>
-
-                {/* Price Max */}
-                <div className="space-y-3">
-                  <Label htmlFor="priceMax" className="text-slate-700 font-bold flex items-center gap-2">
-                    <DollarSign className="h-4 w-4 text-indigo-500" />
-                    Maximum Price ($)
-                  </Label>
-                  <Input
-                    id="priceMax"
-                    name="priceMax"
-                    type="number"
-                    placeholder="100"
+                    placeholder="99"
                     required
                     className="rounded-xl border-slate-200 focus:ring-indigo-500 h-12"
                   />

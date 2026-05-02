@@ -16,7 +16,7 @@ const DUMMY_COURSES = [
     description: "Master React, Next.js, and Node.js with hands-on projects and industry best practices.",
     image: "https://images.unsplash.com/photo-1587620962725-abab7fe55159?w=800&q=80",
     courseLevel: "ADVANCED",
-    priceRange: { min: 99, max: 299 },
+    price: 199,
     user: { name: "John Doe", picture: "https://api.dicebear.com/7.x/avataaars/svg?seed=John" }
   },
   {
@@ -25,7 +25,7 @@ const DUMMY_COURSES = [
     description: "Learn to create stunning user interfaces and seamless user experiences using Figma and Adobe XD.",
     image: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800&q=80",
     courseLevel: "INTERMEDIATE",
-    priceRange: { min: 79, max: 199 },
+    price: 149,
     user: { name: "Sarah Smith", picture: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah" }
   },
   {
@@ -34,7 +34,7 @@ const DUMMY_COURSES = [
     description: "Dive deep into Python, Machine Learning, and Neural Networks to solve real-world data problems.",
     image: "https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=800&q=80",
     courseLevel: "ADVANCED",
-    priceRange: { min: 149, max: 499 },
+    price: 299,
     user: { name: "Alex Chen", picture: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex" }
   }
 ];

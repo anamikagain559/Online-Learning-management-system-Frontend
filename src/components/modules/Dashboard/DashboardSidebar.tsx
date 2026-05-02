@@ -6,10 +6,10 @@ import { UserInfo } from "@/types/user.interface";
 import DashboardSidebarContent from "./DashboardSidebarContent";
 
 const DashboardSidebar = async () => {
-  const userInfo = (await getUserInfo()) as UserInfo;
+  const userInfo = (await getUserInfo()) as UserInfo || { name: "User", role: "STUDENT" };
 
-  const navItems: NavSection[] = getNavItemsByRole(userInfo.role);
-  const dashboardHome = getDefaultDashboardRoute(userInfo.role);
+  const navItems: NavSection[] = getNavItemsByRole(userInfo?.role);
+  const dashboardHome = getDefaultDashboardRoute(userInfo?.role);
 
   return (
     <DashboardSidebarContent

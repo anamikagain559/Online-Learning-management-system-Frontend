@@ -1,6 +1,6 @@
 "use server";
 
-import { getDefaultDashboardRoute, isValidRedirectForRole, UserRole } from "@/lib/auth-utils";
+import { getDefaultDashboardRoute, getRouteOwner, canAccessRoute, UserRole } from "@/lib/auth-utils";
 import { verifyAccessToken } from "@/lib/jwtHanlders";
 import { serverFetch } from "@/lib/server-fetch";
 import { zodValidator } from "@/lib/zodValidator";
@@ -89,11 +89,15 @@ export async function resetPassword(_prevState: any, formData: FormData) {
     revalidateTag("user-info", { expire: 0 });
 
     // Handle redirect
-    const destination = redirectTo
-      ? isValidRedirectForRole(redirectTo, userRole)
-        ? `${redirectTo}?loggedIn=true`
-        : `${getDefaultDashboardRoute(userRole)}?loggedIn=true`
-      : `${getDefaultDashboardRoute(userRole)}?loggedIn=true`;
+    let destination = `${getDefaultDashboardRoute(userRole)}?loggedIn=true`;
+    
+    if (redirectTo) {
+      const routeOwner = getRouteOwner(redirectTo);
+      const isValid = routeOwner === null || routeOwner === "COMMON" || canAccessRoute(userRole, routeOwner);
+      if (isValid) {
+        destination = `${redirectTo}?loggedIn=true`;
+      }
+    }
 
     redirect(destination);
   } catch (error: any) {

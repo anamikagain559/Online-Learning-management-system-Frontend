@@ -1,37 +1,40 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Swal from "sweetalert2";
-import {
-  getMyCourses,
-  deleteCourse,
-} from "@/services/course/course.service";
-import { ICourse } from "@/types/course.interface";
-import { BookOpen, Sparkles, Plus, Search, Filter, History, GraduationCap } from "lucide-react";
-import ManagementPageHeader from "@/components/shared/ManagementPageHeader";
-import CourseCard from "@/components/modules/User/Courses/CourseCard";
-import CourseFormDialog from "@/components/modules/User/Courses/CourseFormDialog";
+import { 
+  getMyEnrollments 
+} from "@/services/enrollment/enrollment.service";
+import { 
+  BookOpen, 
+  Search, 
+  Filter, 
+  GraduationCap,
+  LayoutGrid,
+  Clock,
+  PlayCircle
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import StatsCard from "@/components/modules/Dashboard/StatsCard";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
 
-export default function UserCoursesPage() {
-  const [courses, setCourses] = useState<ICourse[]>([]);
-  const [filteredCourses, setFilteredCourses] = useState<ICourse[]>([]);
+export default function StudentEnrollmentsPage() {
+  const [enrollments, setEnrollments] = useState<any[]>([]);
+  const [filteredEnrollments, setFilteredEnrollments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [open, setOpen] = useState(false);
-  const [editingCourse, setEditingCourse] = useState<ICourse | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [, startTransition] = useTransition();
 
-  const fetchCourses = async () => {
+  const fetchEnrollments = async () => {
     setLoading(true);
     try {
-      const res = await getMyCourses();
+      const res = await getMyEnrollments();
       if (res.success) {
-        setCourses(res.data);
-        setFilteredCourses(res.data);
+        setEnrollments(res.data);
+        setFilteredEnrollments(res.data);
       }
     } finally {
       setLoading(false);
@@ -39,106 +42,94 @@ export default function UserCoursesPage() {
   };
 
   useEffect(() => {
-    fetchCourses();
+    fetchEnrollments();
   }, []);
 
   useEffect(() => {
-    const filtered = courses.filter(course => 
-      course.category.toLowerCase().includes(searchTerm.toLowerCase())
+    const filtered = enrollments.filter(e => 
+      e.course?.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      e.course?.category?.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    setFilteredCourses(filtered);
-  }, [searchTerm, courses]);
-
-  const handleDelete = async (id: string) => {
-    const result = await Swal.fire({
-      title: "Delete Course?",
-      text: "This curriculum will be permanently removed from your archive.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#EF4444",
-      cancelButtonColor: "#64748B",
-      confirmButtonText: "Yes, delete it",
-      background: "#fff",
-      customClass: {
-        popup: 'rounded-[2rem] border-none shadow-3xl',
-        confirmButton: 'rounded-xl px-8 py-3 font-bold',
-        cancelButton: 'rounded-xl px-8 py-3 font-bold'
-      }
-    });
-
-    if (!result.isConfirmed) return;
-
-    const res = await deleteCourse(id);
-
-    if (res.success) {
-      setCourses(prev => prev.filter(c => c._id !== id));
-      Swal.fire({
-        title: "Archived!",
-        text: "Course removed from your records.",
-        icon: "success",
-        timer: 2000,
-        showConfirmButton: false,
-        background: "#fff",
-        customClass: {
-          popup: 'rounded-[2rem] border-none shadow-xl',
-        }
-      });
-    }
-  };
-
-  const handleEdit = (course: ICourse) => {
-    setEditingCourse(course);
-    setOpen(true);
-  };
-
-  const handleCreate = () => {
-    setEditingCourse(null);
-    setOpen(true);
-  };
+    setFilteredEnrollments(filtered);
+  }, [searchTerm, enrollments]);
 
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
         <div className="relative">
-            <div className="w-16 h-16 border-4 border-indigo-100 rounded-full animate-spin border-t-indigo-600" />
-            <BookOpen className="w-8 h-8 text-indigo-600 absolute inset-0 m-auto animate-pulse" />
+            <div className="w-16 h-16 border-4 border-primary/10 rounded-full animate-spin border-t-primary" />
+            <BookOpen className="w-8 h-8 text-primary absolute inset-0 m-auto animate-pulse" />
         </div>
-        <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">Syncing Curriculums...</p>
+        <p className="text-muted-foreground font-bold uppercase tracking-widest text-xs">Loading Enrollments...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-full space-y-12 animate-in fade-in duration-700 pb-20">
-      <ManagementPageHeader
-        title="Course Management"
-        description="Manage your learning modules and upcoming educational programs"
-      >
-        <Button 
-            onClick={handleCreate}
-            className="h-12 px-8 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-lg shadow-indigo-600/30 transition-all flex items-center gap-3 group"
+    <div className="min-h-full space-y-10 animate-in fade-in duration-700 pb-20 max-w-[1400px] mx-auto">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
         >
-            <div className="w-6 h-6 rounded-lg bg-white/20 flex items-center justify-center group-hover:rotate-90 transition-transform duration-300">
-                <Plus className="h-4 w-4" />
-            </div>
-            New Course
-        </Button>
-      </ManagementPageHeader>
+          <h1 className="text-4xl font-black tracking-tight text-foreground">
+            My <span className="text-primary">Enrollments</span>
+          </h1>
+          <p className="text-muted-foreground mt-2 font-medium text-lg">
+            Track your progress and continue your learning journey.
+          </p>
+        </motion.div>
 
-      {/* Intelligence Bar */}
+        <Link href="/items">
+          <Button 
+              size="lg"
+              className="rounded-2xl font-bold shadow-xl shadow-primary/25 px-8 h-14 group"
+          >
+              <Search className="mr-2 h-5 w-5" />
+              Explore More Courses
+          </Button>
+        </Link>
+      </div>
+
+      {/* Summary Stats */}
+      <div className="grid gap-6 md:grid-cols-3">
+        <StatsCard 
+          title="Active Enrollments" 
+          value={enrollments.length} 
+          icon={LayoutGrid} 
+          description="Courses you're studying" 
+          iconColor="text-indigo-500"
+        />
+        <StatsCard 
+          title="Hours Learned" 
+          value="12.5" 
+          icon={Clock} 
+          description="Total study time" 
+          iconColor="text-emerald-500"
+        />
+        <StatsCard 
+          title="Completed" 
+          value="2" 
+          icon={GraduationCap} 
+          description="Finished curriculums" 
+          iconColor="text-amber-500"
+        />
+      </div>
+
+      {/* Filter Bar */}
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white p-6 rounded-[2.5rem] shadow-xl shadow-slate-200/40 border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6"
+        className="bg-white/60 backdrop-blur-md p-6 rounded-[2.5rem] shadow-xl shadow-slate-200/40 border border-white flex flex-col md:flex-row items-center justify-between gap-6"
       >
         <div className="flex items-center gap-4 w-full md:w-auto">
-            <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 shadow-sm border border-indigo-100">
+            <div className="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center text-primary shadow-sm border border-primary/10">
                 <Search className="w-6 h-6" />
             </div>
             <div className="relative flex-1 md:w-80">
                 <Input 
-                    placeholder="Search by category..." 
-                    className="h-12 pl-4 pr-10 rounded-2xl bg-slate-50 border-none focus-visible:ring-indigo-500 font-medium"
+                    placeholder="Search by title or category..." 
+                    className="h-12 pl-4 pr-10 rounded-2xl bg-slate-50 border-none focus-visible:ring-primary font-medium"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -147,67 +138,97 @@ export default function UserCoursesPage() {
                 </div>
             </div>
         </div>
-
-        <div className="flex items-center gap-3 w-full md:w-auto">
-            <div className="flex flex-col items-end pr-4 border-r border-slate-100 hidden sm:flex">
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Total Courses</span>
-                <span className="text-2xl font-black text-indigo-600">{courses.length}</span>
-            </div>
-            <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-slate-100 transition-colors cursor-pointer">
-                <History className="w-6 h-6" />
-            </div>
-        </div>
       </motion.div>
 
-      {/* Content Grid */}
+      {/* Enrollments Grid */}
       <div className="relative">
         <AnimatePresence mode="popLayout">
-          {filteredCourses.length > 0 ? (
+          {filteredEnrollments.length > 0 ? (
             <motion.div 
               layout
-              className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10"
+              className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8"
             >
-              {filteredCourses.map((course, index) => (
-                <CourseCard 
-                  key={course._id} 
-                  course={course} 
-                  onEdit={handleEdit} 
-                  onDelete={handleDelete}
-                  index={index}
-                />
+              {filteredEnrollments.map((enrollment, index) => (
+                <motion.div
+                  key={enrollment._id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <Card className="group overflow-hidden border-none shadow-xl shadow-slate-200/50 bg-white hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 rounded-[2.5rem]">
+                    <div className="relative h-48 w-full overflow-hidden">
+                      <img
+                        src={enrollment.course?.image || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80"}
+                        alt={enrollment.course?.title}
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                         <PlayCircle className="h-12 w-12 text-white" />
+                      </div>
+                      <div className="absolute top-4 left-4">
+                        <Badge className="bg-white/20 backdrop-blur-md border border-white/20 text-white font-bold">
+                          {enrollment.course?.category}
+                        </Badge>
+                      </div>
+                    </div>
+                    <CardContent className="p-6">
+                      <h3 className="text-xl font-bold text-slate-900 mb-2 line-clamp-1">{enrollment.course?.title}</h3>
+                      <div className="flex items-center justify-between mb-4">
+                         <span className="text-xs text-muted-foreground font-medium flex items-center gap-1">
+                            <Clock className="h-3 w-3" /> Enrolled: {new Date(enrollment.createdAt).toLocaleDateString()}
+                         </span>
+                         <Badge variant="secondary" className="text-[10px] uppercase font-bold">
+                            {enrollment.status}
+                         </Badge>
+                      </div>
+                      
+                      <div className="space-y-2 mb-6">
+                         <div className="flex justify-between text-[10px] font-bold text-slate-400">
+                            <span>PROGRESS</span>
+                            <span>45%</span>
+                         </div>
+                         <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                            <div className="h-full bg-primary w-[45%]" />
+                         </div>
+                      </div>
+
+                      <Link href={`/dashboard/courses/${enrollment._id}`}>
+                        <Button className="w-full rounded-xl font-bold">
+                           Resume Learning
+                        </Button>
+                      </Link>
+                    </CardContent>
+                  </Card>
+                </motion.div>
               ))}
             </motion.div>
           ) : (
             <motion.div 
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="flex flex-col items-center justify-center py-32 text-center"
+              className="flex flex-col items-center justify-center py-20 text-center bg-white/40 rounded-[3rem] border-2 border-dashed border-slate-100"
             >
               <div className="w-24 h-24 rounded-full bg-slate-50 flex items-center justify-center mb-6 border border-slate-100 shadow-inner">
-                <GraduationCap className="w-10 h-10 text-slate-200" />
+                <BookOpen className="w-10 h-10 text-slate-200" />
               </div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-2">No courses found</h3>
+              <h3 className="text-2xl font-bold text-slate-900 mb-2">No enrollments found</h3>
               <p className="text-slate-400 font-medium mb-8 max-w-sm">
-                Your curriculum vault is currently empty. Start by publishing your first course!
+                You haven't enrolled in any courses yet. Start exploring our catalog to begin your journey!
               </p>
-              <Button 
-                onClick={handleCreate}
-                variant="outline"
-                className="rounded-xl border-slate-200 text-slate-600 hover:bg-slate-50 h-12 px-6 font-bold"
-              >
-                Create First Course
-              </Button>
+              <Link href="/items">
+                <Button 
+                  variant="outline"
+                  className="rounded-2xl border-slate-200 text-slate-600 hover:bg-slate-50 h-14 px-8 font-bold"
+                >
+                  Browse Courses
+                </Button>
+              </Link>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
-
-      <CourseFormDialog
-        open={open}
-        onClose={() => setOpen(false)}
-        course={editingCourse}
-        onSuccess={fetchCourses}
-      />
     </div>
   );
 }
+
+

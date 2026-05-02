@@ -13,7 +13,7 @@ function PublicFooter() {
             <h3 className="font-semibold mb-2">Quick Links</h3>
             <ul className="space-y-2 text-sm">
               <li><Link href="/" className="text-muted-foreground hover:text-foreground">Home</Link></li>
-              <li><Link href="/explore" className="text-muted-foreground hover:text-foreground">Explore Courses</Link></li>
+              <li><Link href="/items" className="text-muted-foreground hover:text-foreground">Explore Courses</Link></li>
               <li><Link href="#" className="text-muted-foreground hover:text-foreground">Instructors</Link></li>
               <li><Link href="#" className="text-muted-foreground hover:text-foreground">Contact</Link></li>
             </ul>

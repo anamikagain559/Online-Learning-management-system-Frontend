@@ -1,6 +1,8 @@
+import { BACKEND_API_URL } from "@/config/env";
+
 export const sendBuddyRequest = async (tripId: string, message?: string) => {
     try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_API_URL}/buddy-requests`, {
+        const response = await fetch(`${BACKEND_API_URL}/buddy-requests`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -18,7 +20,7 @@ export const sendBuddyRequest = async (tripId: string, message?: string) => {
 
 export const getRequestsForTrip = async (tripId: string) => {
     try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_API_URL}/buddy-requests/trip/${tripId}`, {
+        const response = await fetch(`${BACKEND_API_URL}/buddy-requests/trip/${tripId}`, {
             credentials: 'include',
         });
 
@@ -31,7 +33,7 @@ export const getRequestsForTrip = async (tripId: string) => {
 
 export const respondToRequest = async (requestId: string, status: 'APPROVED' | 'REJECTED') => {
     try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_API_URL}/buddy-requests/${requestId}/respond`, {
+        const response = await fetch(`${BACKEND_API_URL}/buddy-requests/${requestId}/respond`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
@@ -49,7 +51,7 @@ export const respondToRequest = async (requestId: string, status: 'APPROVED' | '
 
 export const getPlanBuddies = async (tripId: string) => {
     try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_API_URL}/buddy-requests/buddies/${tripId}`, {
+        const response = await fetch(`${BACKEND_API_URL}/buddy-requests/buddies/${tripId}`, {
             credentials: 'include',
         });
 

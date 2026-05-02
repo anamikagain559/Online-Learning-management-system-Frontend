@@ -38,9 +38,9 @@ const DashboardMobileSidebar = ({
       <div className="flex h-16 items-center px-6 border-b">
         <Link href="/" className="flex items-center space-x-3">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary shadow-lg shadow-primary/20">
-            <span className="text-sm font-bold text-primary-foreground">T</span>
+            <span className="text-sm font-bold text-primary-foreground">L</span>
           </div>
-          <span className="text-lg font-bold tracking-tight">TravelBuddy</span>
+          <span className="text-lg font-bold tracking-tight">LearnHub</span>
         </Link>
       </div>
       <SheetTitle className="sr-only">Navigation Menu</SheetTitle>

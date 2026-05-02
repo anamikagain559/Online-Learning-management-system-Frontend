@@ -23,6 +23,20 @@ export async function getUsers(queryString?: string) {
     }
 }
 
+export async function getInstructors() {
+    try {
+        const response = await serverFetch.get("/user/instructors");
+        const result = await response.json();
+        return result;
+    } catch (error: any) {
+        console.error("Error fetching instructors:", error);
+        return {
+            success: false,
+            message: error.message || "Failed to fetch instructors",
+        };
+    }
+}
+
 /**
  * GET PATIENT BY ID
  * API: GET /patient/:id

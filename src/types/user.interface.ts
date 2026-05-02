@@ -2,6 +2,8 @@
 
 export enum Role {
   ADMIN = "ADMIN",
+  STUDENT = "STUDENT",
+  INSTRUCTOR = "INSTRUCTOR",
   USER = "USER",
 }
 
@@ -23,15 +25,17 @@ export interface UserInfo {
   phone?: string;
   picture: string;
   bio?: string;
+  address?: string;
   travelInterests?: string[];
   visitedCountries?: string[];
   currentLocation?: string;
-  address?: string;
 
   role: Role;
   isActive?: IsActive;
   isVerified?: boolean;
+  needPasswordChange?: boolean;
 
   createdAt: string;
   updatedAt: string;
 }
+

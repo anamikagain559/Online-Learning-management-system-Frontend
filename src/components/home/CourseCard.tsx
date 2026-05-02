@@ -13,7 +13,7 @@ interface CourseCardProps {
     image?: string;
     description?: string;
     courseLevel?: string;
-    priceRange?: { min: number; max: number };
+    price?: number;
     user?: { name?: string; picture?: string };
     startDate?: string;
   };
@@ -83,7 +83,7 @@ export default function CourseCard({ course }: CourseCardProps) {
         <div>
           <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">Price</p>
           <p className="text-xl font-black text-slate-900">
-            ${course.priceRange?.min ?? 49}
+            ${course.price ?? 49}
           </p>
         </div>
         <Link href={`/items/${course._id}`}>

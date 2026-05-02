@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use server"
 
-import { getDefaultDashboardRoute, isValidRedirectForRole, UserRole } from "@/lib/auth-utils";
+import { getDefaultDashboardRoute, getRouteOwner, canAccessRoute, UserRole } from "@/lib/auth-utils";
 import { serverFetch } from "@/lib/server-fetch";
 import { zodValidator } from "@/lib/zodValidator";
 import { loginValidationZodSchema } from "@/zod/auth.validation";
@@ -96,7 +96,9 @@ export const loginUser = async (_currentState: any, formData: any): Promise<any>
 
         if (redirectTo && result.data.needPasswordChange) {
             const requestedPath = redirectTo.toString();
-            if (isValidRedirectForRole(requestedPath, userRole)) {
+            const routeOwner = getRouteOwner(requestedPath);
+            const isValid = routeOwner === null || routeOwner === "COMMON" || canAccessRoute(userRole, routeOwner);
+            if (isValid) {
                 redirect(`/reset-password?redirect=${requestedPath}`);
             } else {
                 redirect("/reset-password");
@@ -111,7 +113,9 @@ export const loginUser = async (_currentState: any, formData: any): Promise<any>
 
         if (redirectTo) {
             const requestedPath = redirectTo.toString();
-            if (isValidRedirectForRole(requestedPath, userRole)) {
+            const routeOwner = getRouteOwner(requestedPath);
+            const isValid = routeOwner === null || routeOwner === "COMMON" || canAccessRoute(userRole, routeOwner);
+            if (isValid) {
                 redirect(`${requestedPath}?loggedIn=true`);
             } else {
                 redirect(`${getDefaultDashboardRoute(userRole)}?loggedIn=true`);

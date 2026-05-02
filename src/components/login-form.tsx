@@ -7,7 +7,7 @@ import InputFieldError from "./shared/InputFieldError";
 import { Button } from "./ui/button";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "./ui/field";
 import { Input } from "./ui/input";
-import { Chrome } from "lucide-react";
+
 
 interface LoginFormProps {
   redirect?: string;
@@ -68,19 +68,7 @@ const LoginForm = ({ redirect }: LoginFormProps) => {
         </FieldGroup>
       </form>
 
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t border-slate-200" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-white px-2 text-slate-500 font-bold">Or continue with</span>
-        </div>
-      </div>
 
-      <Button variant="outline" className="w-full py-6 rounded-xl border-slate-200 font-bold flex items-center gap-2">
-        <Chrome className="h-5 w-5 text-rose-500" />
-        Login with Google
-      </Button>
 
       <p className="text-center text-sm text-slate-500">
         Don&apos;t have an account?{" "}

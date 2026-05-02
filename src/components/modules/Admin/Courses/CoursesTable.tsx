@@ -110,12 +110,20 @@ const CoursesTable = ({ courses }: CoursesTableProps) => {
         header: "Instructor",
         accessor: (course) => (
           <div className="flex items-center gap-2 group cursor-pointer">
-            <div className="w-8 h-8 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 transition-colors group-hover:bg-indigo-600 group-hover:text-white">
-                <User className="w-4 h-4" />
+            <div className="w-8 h-8 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 transition-colors overflow-hidden group-hover:bg-indigo-600 group-hover:text-white">
+                {(course as any).instructorId?.picture || course.user?.picture ? (
+                    <img 
+                        src={(course as any).instructorId?.picture || course.user?.picture} 
+                        alt="Instructor" 
+                        className="w-full h-full object-cover" 
+                    />
+                ) : (
+                    <User className="w-4 h-4" />
+                )}
             </div>
             <div className="flex flex-col">
                 <span className="text-sm font-semibold text-slate-700 group-hover:text-slate-900 transition-colors">
-                    {course.user?.name || "Anonymous"}
+                    {(course as any).instructorId?.name || course.user?.name || "Anonymous"}
                 </span>
                 <span className="text-[10px] text-slate-400 font-medium">Instructor</span>
             </div>
@@ -131,7 +139,7 @@ const CoursesTable = ({ courses }: CoursesTableProps) => {
             </Badge>
             <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
                 <DollarSign className="w-3.5 h-3.5 text-emerald-500" />
-                <span>${course.priceRange.min.toLocaleString()} - ${course.priceRange.max.toLocaleString()}</span>
+                <span className="text-slate-900 font-black">${course.price?.toLocaleString()}</span>
             </div>
         </div>
       ),

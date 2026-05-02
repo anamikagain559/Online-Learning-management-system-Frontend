@@ -1,4 +1,4 @@
-export type UserRole = "ADMIN" | "STUDENT" | "INSTRUCTOR";
+export type UserRole = "ADMIN" | "STUDENT" | "INSTRUCTOR" | "USER";
 
 export type RouteConfig = {
     exact: string[],
@@ -56,6 +56,6 @@ export const getDefaultDashboardRoute = (role: UserRole): string => {
 export const canAccessRoute = (role: UserRole, routeOwner: "ADMIN" | "DASHBOARD" | "COMMON"): boolean => {
     if (routeOwner === "COMMON") return true;
     if (routeOwner === "ADMIN") return role === "ADMIN";
-    if (routeOwner === "DASHBOARD") return role === "STUDENT" || role === "INSTRUCTOR";
+    if (routeOwner === "DASHBOARD") return role === "STUDENT" || role === "INSTRUCTOR" || role === "USER";
     return false;
 }

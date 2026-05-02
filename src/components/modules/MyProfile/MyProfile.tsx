@@ -24,7 +24,15 @@ const MyProfile = ({ userInfo }: MyProfileProps) => {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [picture, setPicture] = useState<string>(userInfo.picture || "");
+  const [picture, setPicture] = useState<string>(userInfo?.picture || "");
+
+  if (!userInfo) {
+    return (
+      <div className="flex items-center justify-center h-full p-10">
+         <p className="text-muted-foreground">Unable to load profile information. Please try logging in again.</p>
+      </div>
+    );
+  }
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -33,7 +41,7 @@ const MyProfile = ({ userInfo }: MyProfileProps) => {
 
     const form = e.currentTarget;
 
-    const payload = {
+    const payload: any = {
       name: (form.elements.namedItem("name") as HTMLInputElement).value,
       phone: (form.elements.namedItem("phone") as HTMLInputElement).value,
       currentLocation: (form.elements.namedItem("currentLocation") as HTMLInputElement).value,
@@ -47,8 +55,15 @@ const MyProfile = ({ userInfo }: MyProfileProps) => {
         .split(",")
         .map((v) => v.trim())
         .filter(Boolean),
-      picture,
+      picture: picture || undefined,
     };
+
+    // Clean payload of empty strings for optional fields
+    Object.keys(payload).forEach(key => {
+      if (payload[key] === "" || (Array.isArray(payload[key]) && payload[key].length === 0)) {
+        delete payload[key];
+      }
+    });
 
     startTransition(async () => {
       const result = await updateMyProfile(payload);

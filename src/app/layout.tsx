@@ -3,8 +3,8 @@ import { SocketProvider } from "@/providers/SocketProvider";
 import { ChatWindow } from "@/components/shared/ChatWindow";
 
 export const metadata = {
-  title: "Travel Buddy & Meetup",
-  description: "Find your perfect travel companion",
+  title: "LearnHub | Online Learning Management System",
+  description: "Master new skills with industry-leading online courses and professional certification.",
 };
 
 export default function RootLayout({

@@ -64,19 +64,18 @@ export default function CTA() {
           className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-sm font-medium mb-8"
         >
           <Sparkles className="h-4 w-4 text-amber-300" />
-          Join 2,500+ Travelers Today
+          Join 2,500+ Learners Today
         </motion.div>
 
         <h2 className="text-4xl md:text-6xl font-extrabold leading-tight">
           Ready to Start Your{" "}
           <span className="bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-400 bg-clip-text text-transparent">
-            Journey?
+            Knowledge Journey?
           </span>
         </h2>
 
         <p className="mt-6 text-white/60 text-lg md:text-xl max-w-xl mx-auto leading-relaxed">
-          Sign up now and find your next travel buddy. Adventure is better when
-          shared.
+          Sign up now and join our global community of lifelong learners. Education is better when shared.
         </p>
 
         <motion.div

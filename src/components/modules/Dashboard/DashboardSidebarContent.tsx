@@ -26,8 +26,7 @@ const DashboardSidebarContent = ({
 }: DashboardSidebarContentProps) => {
   const pathname = usePathname() ?? "";
 
-  // ✅ VERY IMPORTANT: guard clause
-  if (!userInfo) return null;
+  const displayUserInfo = userInfo || { name: "User", role: "STUDENT" };
 
   const handleLogout = async () => {
     await logoutUser();
@@ -40,10 +39,10 @@ const DashboardSidebarContent = ({
       <div className="flex h-20 items-center px-6">
         <Link href="/" className="flex items-center space-x-3 group">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary shadow-lg shadow-primary/20 transition-transform group-hover:scale-105">
-            <span className="text-xl font-bold text-primary-foreground">T</span>
+            <span className="text-xl font-bold text-primary-foreground">L</span>
           </div>
           <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-            TravelBuddy
+            LearnHub
           </span>
         </Link>
       </div>
@@ -135,7 +134,7 @@ const DashboardSidebarContent = ({
             <div className="relative">
               <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
                 <span className="text-sm font-bold text-primary">
-                  {userInfo.name?.charAt(0)?.toUpperCase() ?? "U"}
+                  {displayUserInfo.name?.charAt(0)?.toUpperCase() ?? "U"}
                 </span>
               </div>
               <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-background bg-green-500" />
@@ -143,10 +142,10 @@ const DashboardSidebarContent = ({
 
             <div className="flex-1 overflow-hidden">
               <p className="text-sm font-bold truncate text-foreground leading-tight">
-                {userInfo.name ?? "User"}
+                {displayUserInfo.name ?? "User"}
               </p>
               <p className="text-[11px] text-muted-foreground capitalize font-medium">
-                {userInfo.role?.toLowerCase() ?? ""}
+                {displayUserInfo.role?.toLowerCase() ?? ""}
               </p>
             </div>
           </div>

@@ -6,7 +6,7 @@ LearnHub is a full-stack, premium Online Learning Management System (LMS) design
 
 ## 🌐 Live URLs
 - **Frontend Live URL:** [https://learn-hub-frontend.vercel.app](https://travel-buddy-azure.vercel.app) *(Update with new URL when available)*
-- **Backend Live URL:** [https://learn-hub-backend.vercel.app](https://travel-buddy-backend-kappa.vercel.app) *(Update with new URL when available)*
+- **Backend Live URL:** [https://online-learning-backend-six.vercel.app/](https://online-learning-backend-six.vercel.app/) *(Update with new URL when available)*
 
 ---
 

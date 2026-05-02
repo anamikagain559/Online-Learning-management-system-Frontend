@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { UserCheck, Trash2, CheckCircle, XCircle } from "lucide-react";
 import Swal from "sweetalert2";
+import { BACKEND_API_URL } from "@/config/env";
+
 
 export default function AdminEnrollmentsPage() {
     const [enrollments, setEnrollments] = useState<any[]>([]);
@@ -10,7 +12,7 @@ export default function AdminEnrollmentsPage() {
 
     const fetchEnrollments = async () => {
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_API_URL}/enrollments/all`, {
+            const res = await fetch(`${BACKEND_API_URL}/enrollments/all`, {
                 credentials: "include",
             });
             const data = await res.json();
@@ -39,7 +41,7 @@ export default function AdminEnrollmentsPage() {
 
         if (confirm.isConfirmed) {
             try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_API_URL}/enrollments/${enrollmentId}`, {
+                const res = await fetch(`${BACKEND_API_URL}/enrollments/${enrollmentId}`, {
                     method: "DELETE",
                     credentials: "include",
                 });
@@ -58,7 +60,7 @@ export default function AdminEnrollmentsPage() {
 
     const handleStatusChange = async (enrollmentId: string, newStatus: string) => {
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_API_URL}/enrollments/${enrollmentId}/respond`, {
+            const res = await fetch(`${BACKEND_API_URL}/enrollments/${enrollmentId}/respond`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",

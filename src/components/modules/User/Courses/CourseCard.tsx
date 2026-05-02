@@ -98,10 +98,10 @@ export default function CourseCard({ course, onEdit, onDelete, index }: CourseCa
               </div>
             </div>
             <div className="space-y-1.5">
-              <span className="text-[10px] uppercase tracking-widest font-extrabold text-slate-400">Price Range</span>
+              <span className="text-[10px] uppercase tracking-widest font-extrabold text-slate-400">Course Tuition</span>
               <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
                 <DollarSign className="w-4 h-4 text-emerald-500" />
-                <span>${course.priceRange.min.toLocaleString()} - ${course.priceRange.max.toLocaleString()}</span>
+                <span className="text-lg font-black">${course.price?.toLocaleString()}</span>
               </div>
             </div>
           </div>

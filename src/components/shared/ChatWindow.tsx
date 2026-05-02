@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSocket } from "@/providers/SocketProvider";
 import { FaComments, FaTimes, FaPaperPlane } from "react-icons/fa";
+import { BACKEND_API_URL } from "@/config/env";
 import { getMessageHistory } from "@/services/message/message.service";
 
 interface Message {
@@ -29,7 +30,7 @@ export const ChatWindow = ({ tripId = "global" }: { tripId?: string }) => {
         const fetchUser = async () => {
             try {
                 // Use credentials: 'include' to pass cookies for the /me request
-                const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_API_URL}/user/me`, {
+                const res = await fetch(`${BACKEND_API_URL}/user/me`, {
                     credentials: 'include'
                 });
                 const data = await res.json();

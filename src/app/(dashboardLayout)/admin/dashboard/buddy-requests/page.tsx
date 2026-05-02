@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { UserPlus, Trash2, CheckCircle, XCircle } from "lucide-react";
 import Swal from "sweetalert2";
+import { BACKEND_API_URL } from "@/config/env";
+
 
 export default function AdminBuddyRequestsPage() {
     const [requests, setRequests] = useState<any[]>([]);
@@ -10,7 +12,7 @@ export default function AdminBuddyRequestsPage() {
 
     const fetchRequests = async () => {
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_API_URL}/buddy-requests/all`, {
+            const res = await fetch(`${BACKEND_API_URL}/buddy-requests/all`, {
                 credentials: "include",
             });
             const data = await res.json();
@@ -39,7 +41,7 @@ export default function AdminBuddyRequestsPage() {
 
         if (confirm.isConfirmed) {
             try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_API_URL}/buddy-requests/${requestId}`, {
+                const res = await fetch(`${BACKEND_API_URL}/buddy-requests/${requestId}`, {
                     method: "DELETE",
                     credentials: "include",
                 });
@@ -58,7 +60,7 @@ export default function AdminBuddyRequestsPage() {
 
     const handleStatusChange = async (requestId: string, newStatus: string) => {
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_API_URL}/buddy-requests/${requestId}/respond`, {
+            const res = await fetch(`${BACKEND_API_URL}/buddy-requests/${requestId}/respond`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",

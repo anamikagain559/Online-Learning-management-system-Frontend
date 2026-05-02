@@ -6,7 +6,7 @@ import { IPaymentIntentPayload } from "@/types/payment.interface";
 import { getCookie } from "@/services/auth/tokenHandlers";
 
 /**
- * CREATE PAYMENT INTENT (Stripe / SSLCommerz)
+ * CREATE PAYMENT INTENT (SUBSCRIPTION)
  */
 export async function createPaymentIntent(data: IPaymentIntentPayload) {
   try {
@@ -30,10 +30,69 @@ export async function createPaymentIntent(data: IPaymentIntentPayload) {
     console.error("Error creating payment intent:", error);
     return {
       success: false,
-      message:
-        process.env.NODE_ENV === "development"
-          ? error.message
-          : "Failed to create payment intent",
+      message: error.message || "Failed to create payment intent",
+      data: null,
+    };
+  }
+}
+
+/**
+ * CREATE COURSE PAYMENT INTENT
+ */
+export async function createCoursePaymentIntent(courseId: string) {
+  try {
+    const accessToken = await getCookie("accessToken");
+
+    if (!accessToken) {
+      return { success: false, message: "Please log in to enroll", data: null };
+    }
+
+    const response = await serverFetch.post("/payments/create-course-intent", {
+      body: JSON.stringify({ courseId }),
+      headers: {
+        Authorization: `${accessToken}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    const result = await response.json();
+    return result;
+  } catch (error: any) {
+    console.error("Error creating course payment intent:", error);
+    return {
+      success: false,
+      message: error.message || "Failed to initiate payment",
+      data: null,
+    };
+  }
+}
+
+/**
+ * CONFIRM ENROLLMENT
+ */
+export async function confirmEnrollment(paymentIntentId: string, courseId: string) {
+  try {
+    const accessToken = await getCookie("accessToken");
+
+    if (!accessToken) {
+      return { success: false, message: "User session expired", data: null };
+    }
+
+    const response = await serverFetch.post("/payments/confirm-enrollment", {
+      body: JSON.stringify({ paymentIntentId, courseId }),
+      headers: {
+        Authorization: `${accessToken}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    const result = await response.json();
+    return result;
+  } catch (error: any) {
+    console.error("Error confirming enrollment:", error);
+    return {
+      success: false,
+      message: error.message || "Failed to confirm enrollment",
       data: null,
     };
   }
@@ -52,7 +111,7 @@ export async function getMyPayments() {
 
     const response = await serverFetch.get("/payments/me", {
       headers: {
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `${accessToken}`,
       },
     });
 
@@ -62,10 +121,7 @@ export async function getMyPayments() {
     console.error("Error fetching payments:", error);
     return {
       success: false,
-      message:
-        process.env.NODE_ENV === "development"
-          ? error.message
-          : "Failed to fetch payments",
+      message: error.message || "Failed to fetch payments",
       data: [],
     };
   }

@@ -4,10 +4,7 @@ export interface ICourseFormData {
   category: string;
   startDate: string;
   endDate: string;
-  priceRange: {
-    min: number;
-    max: number;
-  };
+  price: number;
   courseLevel: CourseLevel;
   description?: string;
   isPublic?: boolean;

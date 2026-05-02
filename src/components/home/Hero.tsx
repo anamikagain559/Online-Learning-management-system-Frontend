@@ -123,7 +123,7 @@ export default function Hero() {
           transition={{ duration: 0.8, delay: 0.45 }}
           className="mt-10 flex flex-col sm:flex-row justify-center gap-4"
         >
-          <Link href="/explore">
+          <Link href="/items">
             <button className="group relative px-8 py-4 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl font-semibold shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 transition-all duration-300 hover:scale-[1.04] overflow-hidden">
               <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700" />
               <span className="relative flex items-center gap-2">
